@@ -48,7 +48,7 @@ fun HomeScreen(vm: MainViewModel) {
 
             // List of buttons with label and action - Jadah C (sID #991612594)
             val buttons = listOf(
-                //"Scan" to { vm.goToScan() },
+                "Scan" to { vm.goToScan() },
                 "My Private Wishlist" to { vm.goToPrivateWishlist() },
                 "My Public Wishlist" to { vm.goToPublicWishlist() },
                 "Global Wishlist Board" to { vm.goToGlobalWishBoard() },
