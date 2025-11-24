@@ -1,6 +1,11 @@
 package week11.st9464.finalproject.viewmodel
 
+import android.R.attr.text
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +17,7 @@ import week11.st9464.finalproject.model.MangaReader
 import week11.st9464.finalproject.util.UiState
 
 // Created MainViewModel class - Jadah C (sID #991612594)
+// Added a few functions for Scan, ScanResult and MangaDetail screens - Mihai Panait (#991622264)
 class MainViewModel : ViewModel() {
     private val repo by lazy { MangaRepository() }
 
@@ -43,7 +49,25 @@ class MainViewModel : ViewModel() {
         _uiState.value = UiState.Splash
     }
 
-    //fun goToScan() { _uiState.value = UiState.Scan }
+    // Function for scan page navigation
+    fun goToScan() { _uiState.value = UiState.Scan }
+
+    // Going to scan screen
+    var scannedText by mutableStateOf("")
+
+    fun goToScanResult(text: String) {
+        scannedText = text
+        _uiState.value = UiState.ScanResult
+    }
+
+    fun goToMangaDetails() {
+        _uiState.value = UiState.MangaDetails
+    }
+
+    fun scanAgain() {
+        scannedText = ""
+        _uiState.value = UiState.Scan
+    }
 
     fun goToPrivateWishlist() { _uiState.value = UiState.PrivateWishlist }
 

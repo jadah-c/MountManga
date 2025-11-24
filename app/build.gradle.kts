@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.play.services.mlkit.text.recognition)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,4 +80,24 @@ dependencies {
 
     // For Animation
     implementation("androidx.compose.animation:animation:1.6.0")
+
+    // Below are all needed implementations for the advanced components - Mihai Panait (#991622264)
+    // CameraX
+    implementation("androidx.camera:camera-core:1.3.0")
+    implementation("androidx.camera:camera-camera2:1.3.0")
+    implementation("androidx.camera:camera-lifecycle:1.3.0")
+    implementation("androidx.camera:camera-view:1.3.0")
+
+    // Fix ListenableFuture error
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
+    implementation("com.google.guava:guava:32.1.2-android")
+
+    // ML Kit (modern dependencies)
+    // To recognize Latin script
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+    // To recognize Japanese script
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+
+    // Accompanist Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 }

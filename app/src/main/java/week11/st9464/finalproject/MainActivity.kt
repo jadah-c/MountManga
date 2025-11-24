@@ -1,6 +1,7 @@
 package week11.st9464.finalproject
 // Mount Manga Application
 // Created By: Jadah C (sID #991612594) & Mihai P (sID #991622264)
+// Updated the UiState with the new screens - Mihai Panait (#991622264)
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,8 +19,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import week11.st9464.finalproject.ui.globalwishboard.GlobalWishBoardScreen
 import week11.st9464.finalproject.ui.home.HomeScreen
 import week11.st9464.finalproject.ui.login.LoginScreen
+import week11.st9464.finalproject.ui.manga.MangaDetails
 import week11.st9464.finalproject.ui.privatewishlist.PrivateWishlistScreen
 import week11.st9464.finalproject.ui.publicwishlist.PublicWishlistScreen
+import week11.st9464.finalproject.ui.scan.Scan
+import week11.st9464.finalproject.ui.scan.ScanResultScreen
 import week11.st9464.finalproject.ui.splash.SplashScreen
 import week11.st9464.finalproject.ui.theme.MountMangaTheme
 import week11.st9464.finalproject.util.UiState
@@ -39,7 +43,9 @@ class MainActivity : ComponentActivity() {
                 UiState.Splash -> SplashScreen(vm)
                 UiState.Login -> LoginScreen(vm)
                 UiState.Home -> HomeScreen(vm)
-                //UiState.Scan -> Scan(vm)
+                UiState.Scan -> Scan(vm)
+                UiState.ScanResult -> ScanResultScreen(vm)
+                UiState.MangaDetails -> MangaDetails(vm)
                 UiState.PrivateWishlist -> PrivateWishlistScreen(vm)
                 UiState.PublicWishlist -> PublicWishlistScreen(vm)
                 UiState.GlobalWishBoard -> GlobalWishBoardScreen(vm)
