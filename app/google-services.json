@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "938247110024",
+    "project_id": "mountmanga-bc4b0",
+    "storage_bucket": "mountmanga-bc4b0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:938247110024:android:03da3ada5dac8fb4910e3d",
+        "android_client_info": {
+          "package_name": "week11.st9464.finalproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqgZe7PgelKL-l3FLPpmNZmpPx7aECvIw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
