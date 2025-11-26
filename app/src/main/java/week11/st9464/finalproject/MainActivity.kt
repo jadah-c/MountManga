@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import week11.st9464.finalproject.ui.globalwishboard.GlobalWishBoardScreen
+import week11.st9464.finalproject.ui.globalwishboard.GlobalWishlistContentScreen
 import week11.st9464.finalproject.ui.home.HomeScreen
 import week11.st9464.finalproject.ui.login.LoginScreen
 import week11.st9464.finalproject.ui.manga.MangaDetails
@@ -49,6 +50,7 @@ class MainActivity : ComponentActivity() {
                 UiState.PrivateWishlist -> PrivateWishlistScreen(vm)
                 UiState.PublicWishlist -> PublicWishlistScreen(vm)
                 UiState.GlobalWishBoard -> GlobalWishBoardScreen(vm)
+                UiState.GlobalWishlistContent -> GlobalWishlistContentScreen(vm)
             }
         }
     }
