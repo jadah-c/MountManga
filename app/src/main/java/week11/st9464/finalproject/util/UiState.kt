@@ -13,4 +13,5 @@ sealed class UiState {
     object PrivateWishlist : UiState()
     object PublicWishlist : UiState()
     object GlobalWishBoard : UiState()
+    object GlobalWishlistContent : UiState()
 }
