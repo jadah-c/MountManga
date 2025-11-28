@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import week11.st9464.finalproject.model.MangaInfo
+import week11.st9464.finalproject.model.WishlistMangaKey
 import week11.st9464.finalproject.ui.scan.fetchMangaFromJikan
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import java.net.URL
@@ -81,7 +82,19 @@ fun MangaDetails(vm: MainViewModel) {
 
         Spacer(Modifier.height(16.dp))
 
-        Button(onClick = { vm.addSelectedToPrivate() }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = {
+                val allSelected = mutableListOf<MangaInfo>()
+                manga?.let { allSelected.add(it) }
+                allSelected.addAll(
+                    vm.selectedManga.mapNotNull { key ->
+                        vm.recommendations.find { it.id == key.manga.id }
+                    }
+                )
+                vm.addSelectedToPrivate(allSelected)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Add Selected to Private Wishlist")
         }
 
@@ -93,7 +106,22 @@ fun MangaDetails(vm: MainViewModel) {
             label = { Text("Public Wishlist Name") },
             modifier = Modifier.fillMaxWidth()
         )
-        Button(onClick = { vm.addSelectedToPublic() }, modifier = Modifier.fillMaxWidth()) {
+
+        Button(
+            onClick = {
+                val allSelected = mutableListOf<MangaInfo>()
+                manga?.let { allSelected.add(it) }
+
+                allSelected.addAll(
+                    vm.selectedManga.mapNotNull { key ->
+                        vm.recommendations.find { it.id == key.manga.id }
+                    }
+                )
+
+                vm.addSelectedToPublic(allSelected)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Add Selected to Public Wishlist")
         }
 
@@ -159,7 +187,12 @@ fun SectionHeader(text: String) {
 
 @Composable
 fun MangaInfoSection(manga: MangaInfo, vm: MainViewModel) {
-    val selected = vm.selectedManga.contains(manga)
+    val key = WishlistMangaKey(
+        wishlistName = vm.publicWishlistName,
+        manga = manga
+    )
+
+    val selected = vm.selectedManga.contains(key)
 
     Row(
         Modifier.fillMaxWidth().padding(8.dp),
@@ -167,7 +200,7 @@ fun MangaInfoSection(manga: MangaInfo, vm: MainViewModel) {
     ) {
         Checkbox(
             checked = selected,
-            onCheckedChange = { vm.toggleMangaSelection(manga) }
+            onCheckedChange = { vm.toggleMangaSelection(key) }
         )
 
         AsyncImage(
@@ -210,7 +243,13 @@ fun RecommendationRow(vm: MainViewModel) {
 
 @Composable
 fun RecommendationCard(manga: MangaInfo, vm: MainViewModel) {
-    val selected = vm.selectedManga.contains(manga)
+    val key = WishlistMangaKey(
+        wishlistName = vm.publicWishlistName,
+        manga = manga
+    )
+
+    val selected = vm.selectedManga.contains(key)
+
 
     Column(
         modifier = Modifier
@@ -219,7 +258,7 @@ fun RecommendationCard(manga: MangaInfo, vm: MainViewModel) {
     ) {
         Checkbox(
             checked = selected,
-            onCheckedChange = { vm.toggleMangaSelection(manga) }
+            onCheckedChange = { vm.toggleMangaSelection(key) }
         )
 
         Image(
@@ -300,22 +339,20 @@ suspend fun fetchRecommendations(title: String, genres1: List<String>): List<Man
                 val text = URL(url).readText()
                 JSONObject(text)
             } catch (e: Exception) {
+                e.printStackTrace()
                 null
             }
         }
 
         try {
-            //  Search manga → get ID
             val encoded = URLEncoder.encode(title, "UTF-8")
             val searchUrl = "https://api.jikan.moe/v4/manga?q=$encoded&limit=1"
             val searchObj = fetchJson(searchUrl) ?: return@withContext emptyList()
-
             val data = searchObj.getJSONArray("data")
             if (data.length() == 0) return@withContext emptyList()
 
             val malId = data.getJSONObject(0).getInt("mal_id")
 
-            // Get recommendations
             val recUrl = "https://api.jikan.moe/v4/manga/$malId/recommendations"
             val recObj = fetchJson(recUrl) ?: return@withContext emptyList()
             val recData = recObj.getJSONArray("data")
@@ -324,36 +361,52 @@ suspend fun fetchRecommendations(title: String, genres1: List<String>): List<Man
                 val entry = recData.getJSONObject(i).getJSONObject("entry")
                 val recId = entry.getInt("mal_id")
 
-                // MUST WAIT 1 second or Jikan rejects
                 Thread.sleep(1000)
 
-                //  Fetch full details
                 val detailsUrl = "https://api.jikan.moe/v4/manga/$recId"
                 val detailObj = fetchJson(detailsUrl)?.optJSONObject("data")
-                    ?: return@map MangaInfo(entry.getString("title"), "Unknown", entry.getJSONObject("images").getJSONObject("jpg").getString("image_url"), "", emptyList())
 
-                val recTitle = detailObj.getString("title")
+                if (detailObj != null) {
+                    val recTitle = detailObj.getString("title")
 
-                val authorsArray = detailObj.optJSONArray("authors")
-                val author =
-                    if (authorsArray != null && authorsArray.length() > 0)
-                        authorsArray.getJSONObject(0).getString("name")
-                    else "Unknown"
+                    val authorsArray = detailObj.optJSONArray("authors")
+                    val author =
+                        if (authorsArray != null && authorsArray.length() > 0)
+                            authorsArray.getJSONObject(0).getString("name")
+                        else "Unknown"
 
-                val image = detailObj
-                    .getJSONObject("images")
-                    .getJSONObject("jpg")
-                    .getString("image_url")
+                    val image = detailObj
+                        .getJSONObject("images")
+                        .getJSONObject("jpg")
+                        .getString("image_url")
 
-                val genresArr = detailObj.optJSONArray("genres")
-                val genres = mutableListOf<String>()
-                if (genresArr != null) {
-                    for (g in 0 until genresArr.length()) {
-                        genres.add(genresArr.getJSONObject(g).getString("name"))
+                    val genresArr = detailObj.optJSONArray("genres")
+                    val genres = mutableListOf<String>()
+                    if (genresArr != null) {
+                        for (g in 0 until genresArr.length()) {
+                            genres.add(genresArr.getJSONObject(g).getString("name"))
+                        }
                     }
-                }
 
-                MangaInfo(recTitle, author, image, "", genres)
+                    MangaInfo(
+                        id = recId.toString(),
+                        title = recTitle,
+                        author = author,
+                        imageUrl = image,
+                        volume = "",
+                        genres = genres
+                    )
+                } else {
+                    MangaInfo(
+                        id = recId.toString(),
+                        title = entry.getString("title"),
+                        author = "Unknown",
+                        imageUrl = entry.getJSONObject("images").getJSONObject("jpg")
+                            .getString("image_url"),
+                        volume = "",
+                        genres = emptyList()
+                    )
+                }
             }
 
         } catch (e: Exception) {

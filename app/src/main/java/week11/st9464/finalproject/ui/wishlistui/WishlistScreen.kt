@@ -1,0 +1,106 @@
+package week11.st9464.finalproject.ui.wishlistui
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import week11.st9464.finalproject.model.MangaInfo
+import week11.st9464.finalproject.model.WishlistMangaKey
+
+// Moved the WishlistScreen into it's own file for easier access - Mihai Panait (991622264)
+// Function that I also use in PrivateWishlistScreen and PublicWishlistScreen - Mihai Panait (991622264)
+@Composable
+fun WishlistScreen(
+    title: String,
+    subtitle: String? = null,
+    wishlistName: String,
+    mangaList: List<MangaInfo>,
+    selectedManga: List<WishlistMangaKey>,
+    onSelectManga: (WishlistMangaKey) -> Unit,
+    onDeleteSelected: () -> Unit,
+    onEditSelected: (Map<WishlistMangaKey, String>) -> Unit,
+    onHome: () -> Unit,
+    showEditDelete: Boolean = true,
+    homeButtonText: String = "Home",
+    commentMap: MutableMap<WishlistMangaKey, String>
+) {
+    val isEditing = remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(title, style = MaterialTheme.typography.headlineLarge)
+        subtitle?.let {
+            Text(it, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 4.dp))
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (mangaList.isEmpty()) {
+            Text("No manga in this wishlist.", style = MaterialTheme.typography.bodyLarge)
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(mangaList) { manga ->
+                    val key = WishlistMangaKey(wishlistName, manga)
+                    WishlistCard(
+                        manga = manga,
+                        isSelected = selectedManga.contains(key),
+                        onSelect = { onSelectManga(key) },
+                        comment = commentMap[key],
+                        onCommentChange = if (isEditing.value && selectedManga.contains(key)) {
+                            { newComment -> commentMap[key] = newComment }
+                        } else null,
+                        isEditing = isEditing.value
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            if (showEditDelete && !isEditing.value) {
+                Button(onClick = { isEditing.value = true }) { Text("Edit Selected") }
+                Button(onClick = onDeleteSelected) { Text("Delete Selected") }
+                Button(onClick = onHome) { Text(homeButtonText) }
+            } else if (isEditing.value) {
+                Button(
+                    onClick = {
+                        onEditSelected(commentMap)
+                        isEditing.value = false
+                    }
+                ) { Text("Save Comment") }
+
+                Button(onClick = { isEditing.value = false }) { Text("Back") }
+            }
+        }
+    }
+}

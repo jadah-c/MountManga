@@ -23,6 +23,7 @@ import week11.st9464.finalproject.ui.login.LoginScreen
 import week11.st9464.finalproject.ui.manga.MangaDetails
 import week11.st9464.finalproject.ui.privatewishlist.PrivateWishlistScreen
 import week11.st9464.finalproject.ui.publicwishlist.PublicWishlistScreen
+import week11.st9464.finalproject.ui.publicwishlist.PublicWishlistSelectorScreen
 import week11.st9464.finalproject.ui.scan.Scan
 import week11.st9464.finalproject.ui.scan.ScanResultScreen
 import week11.st9464.finalproject.ui.splash.SplashScreen
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
                 UiState.ScanResult -> ScanResultScreen(vm)
                 UiState.MangaDetails -> MangaDetails(vm)
                 UiState.PrivateWishlist -> PrivateWishlistScreen(vm)
+                UiState.PublicWishlistSelector -> PublicWishlistSelectorScreen(vm)
                 UiState.PublicWishlist -> PublicWishlistScreen(vm)
                 UiState.GlobalWishBoard -> GlobalWishBoardScreen(vm)
                 UiState.GlobalWishlistContent -> GlobalWishlistContentScreen(vm)
