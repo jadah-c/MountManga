@@ -1,12 +1,19 @@
 package week11.st9464.finalproject.ui.publicwishlist
 
 
+import android.annotation.SuppressLint
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import week11.st9464.finalproject.model.WishlistMangaKey
 import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 
@@ -16,29 +23,28 @@ import week11.st9464.finalproject.viewmodel.MainViewModel
 
 // Created PublicWishlist Screen - Jadah C (sID #991612594)
 // Made edits to the Public Screen and display manga info - Mihai Panait (991622264)
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun PublicWishlistScreen(vm: MainViewModel) {
     // Load wishlist when screen appears - Mihai Panait (991622264)
     LaunchedEffect(vm.selectedPublicWishlistName) {
-        val wishlistName = vm.selectedPublicWishlistName
-        if (wishlistName.isNotEmpty()) vm.loadUserPublicWishlist(wishlistName)
+        if (vm.selectedPublicWishlistName.isNotEmpty())
+            vm.loadUserPublicWishlist(vm.selectedPublicWishlistName)
     }
 
     val wishlistName = vm.selectedPublicWishlistName.ifEmpty { "Public Wishlist" }
 
     // Prepopulate comments - Mihai Panait (991622264)
-    val commentMap by remember {
-        derivedStateOf {
-            mutableStateMapOf<WishlistMangaKey, String>().apply {
-                vm.userPublicWishlist.forEach { manga ->
-                    vm.getMangaComment(wishlistName, manga)?.let { comment ->
-                        this[WishlistMangaKey(wishlistName, manga)] = comment
-                    }
-                }
+    val commentMap by derivedStateOf {
+        mutableStateMapOf<WishlistMangaKey, String>().apply {
+            vm.userPublicWishlist.forEach { manga ->
+                this[WishlistMangaKey(wishlistName, manga)] =
+                    vm.publicWishlistComments[manga.id].orEmpty()
             }
         }
     }
 
+    var editingMangaKey by remember { mutableStateOf<WishlistMangaKey?>(null) }
 
 
     WishlistScreen(
@@ -47,28 +53,65 @@ fun PublicWishlistScreen(vm: MainViewModel) {
         wishlistName = wishlistName,
         mangaList = vm.userPublicWishlist,
         selectedManga = vm.selectedManga,
-        onSelectManga = { key -> vm.toggleMangaSelection(key) },
-        onDeleteSelected = {
-            val currentWishlistName = wishlistName
-
-            // Only delete keys that belong to the current wishlist
-            val keysToDelete = vm.selectedManga.filter { it.wishlistName == currentWishlistName }
-
-            keysToDelete.forEach { key ->
-                vm.removeFromPublic(currentWishlistName, key.manga)
-            }
-
-            // Remove only deleted keys from selectedManga
-            vm.selectedManga.removeAll { it.wishlistName == currentWishlistName }
+        onSelectManga = { key ->
+            vm.selectedManga.clear()
+            vm.selectedManga.add(key)
         },
-        onEditSelected = { editedComments ->
-            editedComments.forEach { (key, comment) ->
-                vm.updatePublicMangaComment(key.wishlistName, key.manga, comment)
+        onDeleteSelected = {
+            val keysToDelete = vm.selectedManga.filter { it.wishlistName == wishlistName }
+            keysToDelete.forEach { key ->
+                vm.removeFromPublic(wishlistName, key.manga)
+                vm.removeLocalCommentPublic(wishlistName, key.manga)
             }
+            vm.selectedManga.removeAll { it.wishlistName == wishlistName }
+        },
+        onEditSelected = {
+            if (vm.selectedManga.size == 1) editingMangaKey = vm.selectedManga.first()
         },
         onHome = { vm.goToPublicWishlistSelector() },
         showEditDelete = true,
         homeButtonText = "Back",
         commentMap = commentMap
     )
+
+    // Edit dialog - Mihai Panait (991622264)
+    editingMangaKey?.let { key ->
+        var comment by remember { mutableStateOf(commentMap[key].orEmpty()) }
+
+        AlertDialog(
+            onDismissRequest = { editingMangaKey = null },
+            title = { Text("Edit Comment") },
+            text = {
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text("Comment") },
+                    singleLine = false
+                )
+            },
+            confirmButton = {
+                // Row to hold both Save and Clear buttons - Mihai Panait (991622264)
+                androidx.compose.foundation.layout.Row {
+                    TextButton(onClick = {
+                        // Save comment to Firebase - Mihai Panait (991622264)
+                        vm.updatePublicMangaComment(key.wishlistName, key.manga, comment)
+                        // Save locally - Mihai Panait (991622264)
+                        vm.setLocalCommentPublic(key.wishlistName, key.manga, comment)
+                        editingMangaKey = null
+                    }) { Text("Save") }
+
+                    TextButton(onClick = {
+                        // Clear comment on Firebase - Mihai Panait (991622264)
+                        vm.updatePublicMangaComment(key.wishlistName, key.manga, "")
+                        // Remove locally - Mihai Panait (991622264)
+                        vm.removeLocalCommentPublic(key.wishlistName, key.manga)
+                        editingMangaKey = null
+                    }) { Text("Clear") }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingMangaKey = null }) { Text("Cancel") }
+            }
+        )
+    }
 }

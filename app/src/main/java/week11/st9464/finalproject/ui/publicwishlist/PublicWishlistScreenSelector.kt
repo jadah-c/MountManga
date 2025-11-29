@@ -30,7 +30,6 @@ import week11.st9464.finalproject.viewmodel.MainViewModel
 // - Mihai Panait (991622264)
 @Composable
 fun PublicWishlistSelectorScreen(vm: MainViewModel) {
-    // Load the list of *your* public wishlist summaries
     LaunchedEffect(Unit) {
         vm.loadMyPublicWishlistSummaries()
     }

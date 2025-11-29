@@ -87,7 +87,7 @@ fun WishlistCard(
                     value = textState.value,
                     onValueChange = { newText ->
                         textState.value = newText
-                        onCommentChange(newText) // update the shared state map
+                        onCommentChange(newText)
                     },
                     placeholder = { Text("Add a comment") },
                     modifier = Modifier.fillMaxWidth()

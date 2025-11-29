@@ -62,7 +62,7 @@ class MainViewModel : ViewModel() {
         _uiState.value = UiState.Splash
     }
 
-    // Function for scan page navigation
+    // Function for scan page navigation - Mihai Panait (991622264)
     fun goToScan() {
         _uiState.value = UiState.Scan
     }
@@ -112,49 +112,110 @@ class MainViewModel : ViewModel() {
     }
 
     // Adding comments - Mihai Panait (991622264)
+
+    private val privateWishlistComments = mutableMapOf<String, String>()
+
+    val publicWishlistComments = mutableStateMapOf<String, String>()  // key = manga.id
+    fun getMangaComment(wishlistName: String, manga: MangaInfo): String? =
+        privateWishlistComments[manga.id]
+
+    fun getMangaCommentPublic(wishlistName: String, manga: MangaInfo): String? =
+        publicWishlistComments[manga.id]
+
+    fun setLocalComment(wishlistName: String, manga: MangaInfo, comment: String) {
+        privateWishlistComments[manga.id] = comment
+    }
+
+    fun setLocalCommentPublic(wishlistName: String, manga: MangaInfo, comment: String) {
+        publicWishlistComments[manga.id] = comment
+    }
+
+    fun removeLocalComment(wishlistName: String, manga: MangaInfo) {
+        privateWishlistComments.remove(manga.id)
+    }
+
+    fun removeLocalCommentPublic(wishlistName: String, manga: MangaInfo) {
+        publicWishlistComments.remove(manga.id)
+    }
+
+//  val privateWishlistComments = mutableStateMapOf<String, String>() // key: manga.id, value: comment
+//
+//    // Map to hold public wishlist comments locally
+//    val publicWishlistComments = mutableStateMapOf<String, String>()
+
+//    fun getMangaComment(wishlistName: String, manga: MangaInfo): String? {
+//        return if (wishlistName == "Private Wishlist") {
+//            privateWishlistComments[manga.id] ?: "" // fallback to Firebase if needed
+//        } else {
+//            publicWishlistComments[manga.id] ?: ""
+//        }
+//    }
+
+
+//    fun setLocalComment(wishlistName: String, manga: MangaInfo, comment: String) {
+//        if (wishlistName == "Private Wishlist") {
+//            privateWishlistComments[manga.id] = comment
+//        } else {
+//            publicWishlistComments[manga.id] = comment
+//        }
+//    }
+
+
+    fun updatePrivateMangaComment(manga: MangaInfo, comment: String) {
+        viewModelScope.launch {
+        }
+        setLocalComment("Private Wishlist", manga, comment)
+    }
+
+    fun updatePublicMangaComment(wishlistName: String, manga: MangaInfo, comment: String) {
+        viewModelScope.launch {
+        }
+        setLocalComment(wishlistName, manga, comment)
+    }
+
     val wishlistComments = mutableStateMapOf<WishlistMangaKey, String>()
 
 
-    fun setMangaComment(wishlistName: String, manga: MangaInfo, comment: String) {
-        wishlistComments[WishlistMangaKey(wishlistName, manga)] = comment
-    }
+//    fun setMangaComment(wishlistName: String, manga: MangaInfo, comment: String) {
+//        wishlistComments[WishlistMangaKey(wishlistName, manga)] = comment
+//    }
 
-    fun getMangaComment(wishlistName: String, manga: MangaInfo): String? {
-        return wishlistComments[WishlistMangaKey(wishlistName, manga)]
-    }
+//    fun getMangaComment(wishlistName: String, manga: MangaInfo): String? {
+//        return wishlistComments[WishlistMangaKey(wishlistName, manga)]
+//    }
 
     // Update comment for private wishlist - Mihai Panait (991622264)
-    fun updatePrivateMangaComment(manga: MangaInfo, comment: String) {
-        val uid = currentUser.value?.uid ?: return
-        val wishlistName = "Private"
-        viewModelScope.launch {
-            try {
-                repo.updatePrivateMangaComment(uid, manga.id, comment)
-                val index = privateWishlist.indexOfFirst { it.id == manga.id }
-                if (index != -1) privateWishlist[index].comment = comment
-                setMangaComment(wishlistName, manga, comment) // <-- pass manga, not manga.id
-                showWishlistMessage("Comment saved!")
-            } catch (e: Exception) {
-                showWishlistMessage("Failed to save comment.")
-            }
-        }
-    }
+//    fun updatePrivateMangaComment(manga: MangaInfo, comment: String) {
+//        val uid = currentUser.value?.uid ?: return
+//        val wishlistName = "Private"
+//        viewModelScope.launch {
+//            try {
+//                repo.updatePrivateMangaComment(uid, manga.id, comment)
+//                val index = privateWishlist.indexOfFirst { it.id == manga.id }
+//                if (index != -1) privateWishlist[index].comment = comment
+//                setMangaComment(wishlistName, manga, comment) // <-- pass manga, not manga.id
+//                showWishlistMessage("Comment saved!")
+//            } catch (e: Exception) {
+//                showWishlistMessage("Failed to save comment.")
+//            }
+//        }
+//    }
 
     // Update comment for public wishlist - Mihai Panait (991622264)
-    fun updatePublicMangaComment(wishlistName: String, manga: MangaInfo, comment: String) {
-        val uid = currentUser.value?.uid ?: return
-        viewModelScope.launch {
-            try {
-                repo.updatePublicMangaComment(uid, wishlistName, manga.id, comment)
-                val index = userPublicWishlist.indexOfFirst { it.id == manga.id }
-                if (index != -1) userPublicWishlist[index].comment = comment
-                setMangaComment(wishlistName, manga, comment) // <-- pass manga, not mangaId
-                showWishlistMessage("Comment saved!")
-            } catch (e: Exception) {
-                showWishlistMessage("Failed to save comment.")
-            }
-        }
-    }
+//    fun updatePublicMangaComment(wishlistName: String, manga: MangaInfo, comment: String) {
+//        val uid = currentUser.value?.uid ?: return
+//        viewModelScope.launch {
+//            try {
+//                repo.updatePublicMangaComment(uid, wishlistName, manga.id, comment)
+//                val index = userPublicWishlist.indexOfFirst { it.id == manga.id }
+//                if (index != -1) userPublicWishlist[index].comment = comment
+//                setMangaComment(wishlistName, manga, comment) // <-- pass manga, not mangaId
+//                showWishlistMessage("Comment saved!")
+//            } catch (e: Exception) {
+//                showWishlistMessage("Failed to save comment.")
+//            }
+//        }
+//    }
 
     // Working on the Private and Public wishlists - Mihai Panait (991622264)
     // Tracks which manga are checked by the user
@@ -285,6 +346,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
+
     // Fetching the wishlists - Mihai Panait (991622264)
     fun loadPrivateWishlist() {
         val uid = currentUser.value?.uid ?: return
@@ -293,6 +355,13 @@ class MainViewModel : ViewModel() {
                 val list = repo.getPrivateWishlist(uid)
                 privateWishlist.clear()
                 privateWishlist.addAll(list)
+
+                // Populate comments
+                privateWishlistComments.clear()
+                list.forEach { manga ->
+                    privateWishlistComments[manga.id] = manga.comment.orEmpty()
+                }
+
             } catch (e: Exception) {
                 showWishlistMessage("Failed to load private wishlist.")
             }
@@ -306,6 +375,13 @@ class MainViewModel : ViewModel() {
                 val list = repo.getPublicWishlist(uid)
                 publicWishlist.clear()
                 publicWishlist.addAll(list)
+
+                // Populate comments
+                publicWishlistComments.clear()
+                list.forEach { manga ->
+                    publicWishlistComments[manga.id] = manga.comment.orEmpty()
+                }
+
             } catch (e: Exception) {
                 showWishlistMessage("Failed to load public wishlist.")
             }
@@ -346,6 +422,7 @@ class MainViewModel : ViewModel() {
             currentPublicWishlistName = wishlistName
         }
     }
+
 
     fun selectPublicWishlist(name: String) {
         selectedPublicWishlistName = name
@@ -437,10 +514,7 @@ class MainViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                // Remove from Firestore
                 repo.removeFromPublic(uid, wishlistName, manga.id)
-
-                // Remove locally from the current user's public wishlist
                 userPublicWishlist.removeIf { it.id == manga.id && wishlistName == currentPublicWishlistName }
 
                 showWishlistMessage("Removed '${manga.title}' from Public Wishlist '$wishlistName'.")

@@ -41,8 +41,6 @@ fun WishlistScreen(
     homeButtonText: String = "Home",
     commentMap: MutableMap<WishlistMangaKey, String>
 ) {
-    val isEditing = remember { mutableStateOf(false) }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,10 +70,8 @@ fun WishlistScreen(
                         isSelected = selectedManga.contains(key),
                         onSelect = { onSelectManga(key) },
                         comment = commentMap[key],
-                        onCommentChange = if (isEditing.value && selectedManga.contains(key)) {
-                            { newComment -> commentMap[key] = newComment }
-                        } else null,
-                        isEditing = isEditing.value
+                        onCommentChange = null,
+                        isEditing = false
                     )
                 }
             }
@@ -87,19 +83,10 @@ fun WishlistScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            if (showEditDelete && !isEditing.value) {
-                Button(onClick = { isEditing.value = true }) { Text("Edit Selected") }
+            if (showEditDelete) {
+                Button(onClick = { onEditSelected(commentMap) }) { Text("Edit Selected") }
                 Button(onClick = onDeleteSelected) { Text("Delete Selected") }
                 Button(onClick = onHome) { Text(homeButtonText) }
-            } else if (isEditing.value) {
-                Button(
-                    onClick = {
-                        onEditSelected(commentMap)
-                        isEditing.value = false
-                    }
-                ) { Text("Save Comment") }
-
-                Button(onClick = { isEditing.value = false }) { Text("Back") }
             }
         }
     }

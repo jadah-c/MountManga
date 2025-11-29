@@ -1,12 +1,18 @@
 package week11.st9464.finalproject.ui.privatewishlist
 
 import android.annotation.SuppressLint
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import week11.st9464.finalproject.model.WishlistMangaKey
 import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 import week11.st9464.finalproject.viewmodel.MainViewModel
@@ -23,43 +29,85 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
 
     val wishlistName = "Private Wishlist"
 
-    // Comment map that updates whenever privateWishlist or wishlistComments change
+    // Populate comments - Mihai Panait (991622264)
     val commentMap by derivedStateOf {
         mutableStateMapOf<WishlistMangaKey, String>().apply {
             vm.privateWishlist.forEach { manga ->
-                vm.getMangaComment(wishlistName, manga)?.let { comment ->
-                    this[WishlistMangaKey(wishlistName, manga)] = comment
-                }
+                this[WishlistMangaKey(wishlistName, manga)] =
+                    vm.getMangaComment(wishlistName, manga).orEmpty()
             }
         }
     }
 
+    var editingMangaKey by remember { mutableStateOf<WishlistMangaKey?>(null) }
+
     WishlistScreen(
         title = "Private Wishlist",
-        subtitle = "Private Wishlist",
+        subtitle = wishlistName,
         wishlistName = wishlistName,
         mangaList = vm.privateWishlist,
         selectedManga = vm.selectedManga,
-        onSelectManga = { key -> vm.toggleMangaSelection(key) },
+        onSelectManga = { key ->
+            vm.selectedManga.clear()
+            vm.selectedManga.add(key)
+        },
         onDeleteSelected = {
             vm.selectedManga.forEach { key ->
                 vm.privateWishlist.find { it.id == key.manga.id }?.let { manga ->
                     vm.removeFromPrivate(manga)
-                    vm.privateWishlist.remove(manga) // triggers recomposition
+                    vm.privateWishlist.remove(manga)
+                    vm.removeLocalComment(wishlistName, manga)
                 }
             }
             vm.selectedManga.clear()
         },
-        onEditSelected = { editedComments ->
-            editedComments.forEach { (key, comment) ->
-                vm.privateWishlist.find { it.id == key.manga.id }?.let { manga ->
-                    vm.updatePrivateMangaComment(manga, comment)
-                }
-            }
+        onEditSelected = {
+            if (vm.selectedManga.size == 1) editingMangaKey = vm.selectedManga.first()
         },
         onHome = { vm.goToHome() },
         showEditDelete = true,
         homeButtonText = "Back",
         commentMap = commentMap
     )
+
+    // Edit dialog - Mihai Panait (991622264)
+    editingMangaKey?.let { key ->
+        var comment by remember { mutableStateOf(commentMap[key].orEmpty()) }
+
+        AlertDialog(
+            onDismissRequest = { editingMangaKey = null },
+            title = { Text("Edit Comment") },
+            text = {
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text("Comment") },
+                    singleLine = false
+                )
+            },
+            confirmButton = {
+                // Row to hold both Save and Clear - Mihai Panait (991622264)
+                androidx.compose.foundation.layout.Row {
+                    TextButton(onClick = {
+                        // Save comment to Firebase - Mihai Panait (991622264)
+                        vm.updatePrivateMangaComment(key.manga, comment)
+                        // Save locally - Mihai Panait (991622264)
+                        vm.setLocalComment(wishlistName, key.manga, comment)
+                        editingMangaKey = null
+                    }) { Text("Save") }
+
+                    TextButton(onClick = {
+                        // Clear comment on Firebase - Mihai Panait (991622264)
+                        vm.updatePrivateMangaComment(key.manga, "")
+                        // Remove locally - Mihai Panait (991622264)
+                        vm.removeLocalComment(wishlistName, key.manga)
+                        editingMangaKey = null
+                    }) { Text("Clear") }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingMangaKey = null }) { Text("Cancel") }
+            }
+        )
+    }
 }
