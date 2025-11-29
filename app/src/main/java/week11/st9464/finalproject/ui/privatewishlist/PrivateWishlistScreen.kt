@@ -1,38 +1,25 @@
 package week11.st9464.finalproject.ui.privatewishlist
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import android.annotation.SuppressLint
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import week11.st9464.finalproject.model.MangaInfo
-import week11.st9464.finalproject.ui.globalwishboard.WishlistScreen
-import week11.st9464.finalproject.ui.publicwishlist.WishlistCard
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import week11.st9464.finalproject.model.WishlistMangaKey
+import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 import week11.st9464.finalproject.viewmodel.MainViewModel
 
 // Created PrivateWishlist Screen - Jadah C (sID #991612594)
 // Made edits to the Private Screen and display manga info - Mihai Panait (991622264)
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun PrivateWishlistScreen(vm: MainViewModel) {
     // Load wishlist when screen appears - Mihai Panait (991622264)
@@ -40,62 +27,87 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
         vm.loadPrivateWishlist()
     }
 
+    val wishlistName = "Private Wishlist"
+
+    // Populate comments - Mihai Panait (991622264)
+    val commentMap by derivedStateOf {
+        mutableStateMapOf<WishlistMangaKey, String>().apply {
+            vm.privateWishlist.forEach { manga ->
+                this[WishlistMangaKey(wishlistName, manga)] =
+                    vm.getMangaComment(wishlistName, manga).orEmpty()
+            }
+        }
+    }
+
+    var editingMangaKey by remember { mutableStateOf<WishlistMangaKey?>(null) }
+
     WishlistScreen(
         title = "Private Wishlist",
+        subtitle = wishlistName,
+        wishlistName = wishlistName,
         mangaList = vm.privateWishlist,
-        onDelete = { vm.removeFromPrivate(it) },
-        onEdit = { /* Optional edit functionality */ },
-        onHome = { vm.goToHome() }
+        selectedManga = vm.selectedManga,
+        onSelectManga = { key ->
+            vm.selectedManga.clear()
+            vm.selectedManga.add(key)
+        },
+        onDeleteSelected = {
+            vm.selectedManga.forEach { key ->
+                vm.privateWishlist.find { it.id == key.manga.id }?.let { manga ->
+                    vm.removeFromPrivate(manga)
+                    vm.privateWishlist.remove(manga)
+                    vm.removeLocalComment(wishlistName, manga)
+                }
+            }
+            vm.selectedManga.clear()
+        },
+        onEditSelected = {
+            if (vm.selectedManga.size == 1) editingMangaKey = vm.selectedManga.first()
+        },
+        onHome = { vm.goToHome() },
+        showEditDelete = true,
+        homeButtonText = "Back",
+        commentMap = commentMap
     )
+
+    // Edit dialog - Mihai Panait (991622264)
+    editingMangaKey?.let { key ->
+        var comment by remember { mutableStateOf(commentMap[key].orEmpty()) }
+
+        AlertDialog(
+            onDismissRequest = { editingMangaKey = null },
+            title = { Text("Edit Comment") },
+            text = {
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text("Comment") },
+                    singleLine = false
+                )
+            },
+            confirmButton = {
+                // Row to hold both Save and Clear - Mihai Panait (991622264)
+                androidx.compose.foundation.layout.Row {
+                    TextButton(onClick = {
+                        // Save comment to Firebase - Mihai Panait (991622264)
+                        vm.updatePrivateMangaComment(key.manga, comment)
+                        // Save locally - Mihai Panait (991622264)
+                        vm.setLocalComment(wishlistName, key.manga, comment)
+                        editingMangaKey = null
+                    }) { Text("Save") }
+
+                    TextButton(onClick = {
+                        // Clear comment on Firebase - Mihai Panait (991622264)
+                        vm.updatePrivateMangaComment(key.manga, "")
+                        // Remove locally - Mihai Panait (991622264)
+                        vm.removeLocalComment(wishlistName, key.manga)
+                        editingMangaKey = null
+                    }) { Text("Clear") }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingMangaKey = null }) { Text("Cancel") }
+            }
+        )
+    }
 }
-
-//@Composable
-//fun WishlistScreen(
-//    title: String,
-//    subtitle: String? = null,
-//    mangaList: List<MangaInfo>,
-//    onDelete: (MangaInfo) -> Unit,
-//    onEdit: (MangaInfo) -> Unit,
-//    onHome: () -> Unit
-//) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Text(title, style = MaterialTheme.typography.headlineMedium)
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        if (mangaList.isEmpty()) {
-//            Text("No manga in this wishlist.", style = MaterialTheme.typography.bodyLarge)
-//        } else {
-//            LazyVerticalGrid(
-//                columns = GridCells.Fixed(3),
-//                verticalArrangement = Arrangement.spacedBy(12.dp),
-//                horizontalArrangement = Arrangement.spacedBy(12.dp),
-//                modifier = Modifier.weight(1f)
-//            ) {
-//                items(mangaList) { manga ->
-//                    WishlistCard(
-//                        manga = manga,
-//                        onDelete = { onDelete(manga) },
-//                        onEdit = { onEdit(manga) }
-//                    )
-//                }
-//            }
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceEvenly
-//        ) {
-//            Button(onClick = { /* Optional global edit */ }) { Text("Edit") }
-//            Button(onClick = { /* Optional global delete */ }) { Text("Delete") }
-//            Button(onClick = onHome) { Text("Home") }
-//        }
-//    }
-//}
-

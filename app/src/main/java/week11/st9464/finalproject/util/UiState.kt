@@ -11,6 +11,7 @@ sealed class UiState {
     object ScanResult : UiState()
     object MangaDetails : UiState()
     object PrivateWishlist : UiState()
+    object PublicWishlistSelector : UiState()
     object PublicWishlist : UiState()
     object GlobalWishBoard : UiState()
     object GlobalWishlistContent : UiState()

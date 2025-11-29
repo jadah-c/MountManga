@@ -35,7 +35,7 @@ import week11.st9464.finalproject.model.MangaInfo
 import week11.st9464.finalproject.model.PublicWishlistSummary
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import androidx.compose.runtime.collectAsState
-import week11.st9464.finalproject.ui.publicwishlist.WishlistCard
+import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 
 
 // Created GlobalWishBoard Screen - Jadah C (sID #991612594)
@@ -143,60 +143,18 @@ fun WishlistSummaryRow(
 //Wishlist content - Mihai Panait (991622264)
 @Composable
 fun GlobalWishlistContentScreen(vm: MainViewModel) {
-    val currentUserUid = vm.currentUser.collectAsState().value?.uid
-    val (ownerUid, wishlistName) = vm.selectedGlobalWishlist ?: "" to ""
+    val (_, wishlistName) = vm.selectedGlobalWishlist ?: Pair("", "")
 
-    val isOwnWishlist = ownerUid == currentUserUid
-
-    WishlistScreen(
-        title = wishlistName.ifEmpty { "Wishlist" },
-        mangaList = vm.selectedGlobalWishlistManga,
-        onDelete = { /* only for own */ },
-        onEdit = { /* only for own */ },
-        onHome = { vm.goToGlobalWishBoard() },
-        showEditDelete = isOwnWishlist,
-        homeButtonText = if (isOwnWishlist) "Home" else "Back to Global Wishboard"
-    )
-}
-
-// Function that I also use in PrivateWishlistScreen and PublicWishlistScreen - Mihai Panait (991622264)
-@Composable
-fun WishlistScreen(
-    title: String,
-    subtitle: String? = null,
-    mangaList: List<MangaInfo>,
-    onDelete: (MangaInfo) -> Unit,
-    onEdit: (MangaInfo) -> Unit,
-    onHome: () -> Unit,
-    showEditDelete: Boolean = true,
-    homeButtonText: String = "Home"
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
-            title,
+            wishlistName.ifEmpty { "Wishlist" },
             style = MaterialTheme.typography.headlineLarge
         )
 
-        if (!subtitle.isNullOrEmpty()) {
-            Text(
-                subtitle,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (mangaList.isEmpty()) {
-            Text(
-                "No manga in this wishlist.",
-                style = MaterialTheme.typography.bodyLarge
-            )
+        if (vm.selectedGlobalWishlistManga.isEmpty()) {
+            Text("No manga in this wishlist.", style = MaterialTheme.typography.bodyLarge)
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -204,27 +162,33 @@ fun WishlistScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(mangaList) { manga ->
-                    WishlistCard(
-                        manga = manga,
-                        onDelete = { if (showEditDelete) onDelete(manga) },
-                        onEdit = { if (showEditDelete) onEdit(manga) }
-                    )
+                items(vm.selectedGlobalWishlistManga) { manga ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(manga.imageUrl),
+                            contentDescription = manga.title,
+                            modifier = Modifier
+                                .height(120.dp)
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(manga.title, style = MaterialTheme.typography.bodyMedium, maxLines = 2)
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+        Button(
+            onClick = { vm.goToGlobalWishBoard() },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            if (showEditDelete) {
-                Button(onClick = { /* optional */ }) { Text("Edit") }
-                Button(onClick = { /* optional */ }) { Text("Delete") }
-            }
-            Button(onClick = onHome) { Text(homeButtonText) }
+            Text("Back to Global Wishboard")
         }
     }
 }
+

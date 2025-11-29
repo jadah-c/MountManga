@@ -50,7 +50,7 @@ fun HomeScreen(vm: MainViewModel) {
             val buttons = listOf(
                 "Scan" to { vm.goToScan() },
                 "My Private Wishlist" to { vm.goToPrivateWishlist() },
-                "My Public Wishlist" to { vm.goToPublicWishlist() },
+                "My Public Wishlist" to { vm.goToPublicWishlistSelector() },
                 "Global Wishlist Board" to { vm.goToGlobalWishBoard() },
                 "Logout" to { vm.logout() }
             )

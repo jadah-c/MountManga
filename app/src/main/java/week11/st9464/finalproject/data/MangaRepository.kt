@@ -38,9 +38,10 @@ class MangaRepository {
         db.collection("users")
             .document(uid)
             .collection("privateWishlist")
-            .document(manga.title)
+            .document(manga.id)
             .set(
                 mapOf(
+                    "id" to manga.id,
                     "title" to manga.title,
                     "author" to manga.author,
                     "imageUrl" to manga.imageUrl,
@@ -53,9 +54,10 @@ class MangaRepository {
 
     suspend fun addToPublic(uid: String, manga: MangaInfo, wishlistName: String = "Default") {
         db.collection("publicWishlist")
-            .document("${uid}_${wishlistName}_${manga.title}")
+            .document("${uid}_${wishlistName}_${manga.id}")
             .set(
                 mapOf(
+                    "id" to manga.id,
                     "uid" to uid,
                     "email" to auth.currentUser?.email.orEmpty(),
                     "title" to manga.title,
@@ -63,29 +65,31 @@ class MangaRepository {
                     "imageUrl" to manga.imageUrl,
                     "volume" to manga.volume,
                     "genres" to manga.genres,
-                    "wishlistName" to wishlistName
+                    "wishlistName" to wishlistName,
+                    "comment" to manga.comment.orEmpty()
                 )
             )
             .await()
     }
 
     // Giving the user option to remove from their wishlist - Mihai Panait (991622264)
-    suspend fun removeFromPrivate(uid: String, mangaTitle: String) {
+    suspend fun removeFromPrivate(uid: String, mangaId: String) {
         db.collection("users")
             .document(uid)
             .collection("privateWishlist")
-            .document(mangaTitle)
+            .document(mangaId)
             .delete()
             .await()
     }
 
-    suspend fun removeFromPublic(uid: String, mangaTitle: String, wishlistName: String = "Default") {
+    suspend fun removeFromPublic(uid: String, wishlistName: String, mangaId: String) {
+        val docId = "${uid}_${wishlistName}_$mangaId"
+
         db.collection("publicWishlist")
-            .document("${uid}_${wishlistName}_$mangaTitle")
+            .document(docId)
             .delete()
             .await()
     }
-
     // Fetching the wishlists to display them later - Mihai Panait (991622264)
     suspend fun getPrivateWishlist(uid: String): List<MangaInfo> {
         val snapshot = db.collection("users")
@@ -97,11 +101,13 @@ class MangaRepository {
         return snapshot.documents.mapNotNull { doc ->
             try {
                 MangaInfo(
+                    id = doc.getString("id") ?: doc.getString("title") ?: "Unknown",
                     title = doc.getString("title") ?: "Unknown",
                     author = doc.getString("author") ?: "Unknown",
                     imageUrl = doc.getString("imageUrl") ?: "",
                     volume = doc.getString("volume") ?: "",
-                    genres = doc.get("genres") as? List<String> ?: emptyList()
+                    genres = doc.get("genres") as? List<String> ?: emptyList(),
+                    comment = doc.getString("comment")
                 )
             } catch (e: Exception) {
                 null
@@ -118,11 +124,13 @@ class MangaRepository {
         return snapshot.documents.mapNotNull { doc ->
             try {
                 MangaInfo(
+                    id = doc.getString("id") ?: "Unknown",
                     title = doc.getString("title") ?: "Unknown",
                     author = doc.getString("author") ?: "Unknown",
                     imageUrl = doc.getString("imageUrl") ?: "",
                     volume = doc.getString("volume") ?: "",
-                    genres = doc.get("genres") as? List<String> ?: emptyList()
+                    genres = doc.get("genres") as? List<String> ?: emptyList(),
+                    comment = doc.getString("comment")
                 )
             } catch (e: Exception) {
                 null
@@ -130,17 +138,20 @@ class MangaRepository {
         }
     }
 
+
     // For all public wishlists - Mihai Panait (991622264)
     suspend fun getAllPublicWishlists(): List<Pair<MangaInfo, String>> {
         val snapshot = db.collection("publicWishlist").get().await()
         return snapshot.documents.mapNotNull { doc ->
             try {
                 val manga = MangaInfo(
+                    id = doc.getString("id") ?: doc.getString("title") ?: "Unknown",
                     title = doc.getString("title") ?: "Unknown",
                     author = doc.getString("author") ?: "Unknown",
                     imageUrl = doc.getString("imageUrl") ?: "",
                     volume = doc.getString("volume") ?: "",
-                    genres = doc.get("genres") as? List<String> ?: emptyList()
+                    genres = doc.get("genres") as? List<String> ?: emptyList(),
+                    comment = doc.getString("comment")
                 )
                 val ownerUid = doc.getString("uid") ?: ""
                 manga to ownerUid
@@ -181,16 +192,58 @@ class MangaRepository {
         return snapshot.documents.mapNotNull { doc ->
             try {
                 MangaInfo(
+                    id = doc.getString("id") ?: "Unknown",
                     title = doc.getString("title") ?: "Unknown",
                     author = doc.getString("author") ?: "Unknown",
                     imageUrl = doc.getString("imageUrl") ?: "",
                     volume = doc.getString("volume") ?: "",
-                    genres = doc.get("genres") as? List<String> ?: emptyList()
+                    genres = doc.get("genres") as? List<String> ?: emptyList(),
+                    comment = doc.getString("comment")
                 )
             } catch (e: Exception) {
                 null
             }
         }
     }
+
+    // Fetch only the public wishlist summaries for a specific user - Mihai Panait (991622264)
+    suspend fun getPublicWishlistSummariesByUid(uid: String): List<PublicWishlistSummary> {
+        val snapshot = db.collection("publicWishlist")
+            .whereEqualTo("uid", uid)
+            .get()
+            .await()
+
+        val grouped = snapshot.documents.groupBy { doc ->
+            doc.getString("wishlistName") ?: "Default"
+        }
+
+        return grouped.map { (wishlistName, docs) ->
+            val email = docs.firstOrNull()?.getString("email") ?: "Unknown"
+            PublicWishlistSummary(
+                uid = uid,
+                email = email,
+                wishlistName = wishlistName,
+                mangaCount = docs.size
+            )
+        }
+    }
+
+    // Updating Manga Comments - Mihai Panait (991622264)
+    suspend fun updatePrivateMangaComment(uid: String, mangaId: String, comment: String) {
+        db.collection("users")
+            .document(uid)
+            .collection("privateWishlist")
+            .document(mangaId)
+            .update("comment", comment)
+            .await()
+    }
+
+    suspend fun updatePublicMangaComment(uid: String, wishlistName: String, mangaId: String, comment: String) {
+        db.collection("publicWishlist")
+            .document("${uid}_${wishlistName}_$mangaId")
+            .update("comment", comment)
+            .await()
+    }
+
 }
 

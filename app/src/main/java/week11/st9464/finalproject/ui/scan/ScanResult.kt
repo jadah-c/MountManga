@@ -185,7 +185,7 @@ suspend fun fetchMangaFromJikan(query: String): MangaInfo? {
                 }
             }
 
-            MangaInfo(title, author, image, volumes?.toString() ?: "", genres)
+            MangaInfo(id = best.getInt("mal_id").toString(), title, author, image, volumes?.toString() ?: "", genres)
 
         } catch (e: Exception) {
             e.printStackTrace()
