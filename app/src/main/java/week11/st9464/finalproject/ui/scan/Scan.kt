@@ -7,8 +7,10 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +27,9 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import week11.st9464.finalproject.ui.theme.Golden
+import week11.st9464.finalproject.ui.theme.Lavender
+import week11.st9464.finalproject.ui.theme.Slate
 import week11.st9464.finalproject.viewmodel.MainViewModel
 
 // Created the Scan screen - Mihai Panait (#991622264)
@@ -40,7 +45,7 @@ fun Scan(vm: MainViewModel) {
 
     var currentDetectedText by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(Slate)) {
         if (cameraPermissionState.status.isGranted) {
 
             Box(modifier = Modifier.weight(1f)) {
@@ -58,9 +63,10 @@ fun Scan(vm: MainViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Golden),
                 enabled = currentDetectedText.isNotBlank()
             ) {
-                Text("Capture")
+                Text("Capture", color = Slate)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -69,8 +75,9 @@ fun Scan(vm: MainViewModel) {
                 onClick = { vm.goToHome() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) { Text("Back to Home") }
+                    .padding(horizontal = 16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Golden)
+            ) { Text("Back to Home", color = Slate) }
 
         } else {
             Column(

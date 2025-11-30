@@ -20,7 +20,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,6 +37,12 @@ import week11.st9464.finalproject.model.MangaInfo
 import week11.st9464.finalproject.model.PublicWishlistSummary
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import androidx.compose.runtime.collectAsState
+import week11.st9464.finalproject.ui.theme.BurntOrange
+import week11.st9464.finalproject.ui.theme.Cream
+import week11.st9464.finalproject.ui.theme.EarthBrown
+import week11.st9464.finalproject.ui.theme.Golden
+import week11.st9464.finalproject.ui.theme.Lavender
+import week11.st9464.finalproject.ui.theme.Slate
 import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 
 
@@ -47,10 +55,11 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
         vm.loadGlobalWishlistSummaries()
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(Lavender).padding(16.dp)) {
         Text(
             "Global Wishlist Board",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            color = EarthBrown
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -61,10 +70,10 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                 .padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Users", modifier = Modifier.weight(2f))
-            Text("Number of Manga", modifier = Modifier.weight(1f))
-            Text("Wishlist Name", modifier = Modifier.weight(2f))
-            Text("Select", modifier = Modifier.weight(1f))
+            Text("Users", color = EarthBrown, modifier = Modifier.weight(2f))
+            Text("Number of Manga", color = EarthBrown, modifier = Modifier.weight(1f))
+            Text("Wishlist Name", color = EarthBrown, modifier = Modifier.weight(2f))
+            Text("Select", color = EarthBrown, modifier = Modifier.weight(1f))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -95,6 +104,10 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                     vm.loadGlobalWishlistContent(uid, wishlistName)
                 }
             },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BurntOrange,
+                contentColor = Cream
+            ),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 8.dp)
@@ -102,7 +115,12 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
             Text("View Selected Wishlist")
         }
 
-        Button(onClick = { vm.goToHome() }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+        Button(onClick = { vm.goToHome() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = EarthBrown,
+                contentColor = Cream
+            ),
+            modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text("Back to Home")
         }
     }
@@ -120,9 +138,11 @@ fun WishlistSummaryRow(
             .fillMaxWidth()
             .background(
                 if (summary.uid == currentUserUid)
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    Golden.copy(alpha = 0.3f)
+                    //MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                 else
-                    MaterialTheme.colorScheme.surface,
+                    Cream,
+                    //MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(vertical = 8.dp, horizontal = 8.dp),
@@ -135,7 +155,12 @@ fun WishlistSummaryRow(
         Checkbox(
             checked = isSelected,
             onCheckedChange = { onSelect() },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            colors = CheckboxDefaults.colors(
+                checkedColor = Slate,
+                uncheckedColor = Slate,
+                checkmarkColor = Cream
+            )
         )
     }
 }
@@ -145,10 +170,11 @@ fun WishlistSummaryRow(
 fun GlobalWishlistContentScreen(vm: MainViewModel) {
     val (_, wishlistName) = vm.selectedGlobalWishlist ?: Pair("", "")
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(Lavender).padding(16.dp)) {
         Text(
             wishlistName.ifEmpty { "Wishlist" },
-            style = MaterialTheme.typography.headlineLarge
+            style = MaterialTheme.typography.headlineLarge,
+            color = EarthBrown
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -175,7 +201,7 @@ fun GlobalWishlistContentScreen(vm: MainViewModel) {
                                 .clip(RoundedCornerShape(8.dp))
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(manga.title, style = MaterialTheme.typography.bodyMedium, maxLines = 2)
+                        Text(manga.title, style = MaterialTheme.typography.bodyMedium, color = EarthBrown, maxLines = 2)
                     }
                 }
             }
@@ -185,9 +211,9 @@ fun GlobalWishlistContentScreen(vm: MainViewModel) {
 
         Button(
             onClick = { vm.goToGlobalWishBoard() },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally), colors = ButtonDefaults.buttonColors(containerColor = Golden)
         ) {
-            Text("Back to Global Wishboard")
+            Text("Back to Global Wishboard", color = Slate)
         }
     }
 }

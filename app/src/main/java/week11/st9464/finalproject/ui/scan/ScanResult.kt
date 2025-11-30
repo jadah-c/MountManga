@@ -1,6 +1,7 @@
 package week11.st9464.finalproject.ui.scan
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +27,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import week11.st9464.finalproject.model.MangaInfo
+import week11.st9464.finalproject.ui.theme.Cream
+import week11.st9464.finalproject.ui.theme.EarthBrown
+import week11.st9464.finalproject.ui.theme.Golden
+import week11.st9464.finalproject.ui.theme.Slate
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import java.net.URLEncoder
 import java.net.URL
@@ -59,10 +65,11 @@ fun ScanResultScreen(vm: MainViewModel) {
     Column(
         Modifier
             .fillMaxSize()
+            .background(Cream)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Scan Result", modifier = Modifier.padding(8.dp))
+        Text("Scan Result", color = EarthBrown, modifier = Modifier.padding(8.dp))
 
         Spacer(Modifier.height(20.dp))
 
@@ -74,7 +81,7 @@ fun ScanResultScreen(vm: MainViewModel) {
                 contentScale = ContentScale.Crop
             )
         } else {
-            Text("No Image Found", color = Color.Gray)
+            Text("No Image Found", color = Slate)
         }
 
         Spacer(Modifier.height(12.dp))
@@ -86,7 +93,11 @@ fun ScanResultScreen(vm: MainViewModel) {
         Button(
             onClick = { vm.goToMangaDetails() },
             modifier = Modifier.fillMaxWidth(),
-            enabled = fetchState == "Capture Success"
+            enabled = fetchState == "Capture Success",
+            colors = ButtonDefaults.buttonColors(
+                containerColor = EarthBrown,
+                contentColor = Golden
+            )
         ) {
             Text("View Manga Details")
         }
@@ -101,9 +112,23 @@ fun ScanResultScreen(vm: MainViewModel) {
 
         Spacer(Modifier.height(30.dp))
 
-        Button(onClick = { vm.scanAgain() }) { Text("Scan Again") }
+        Button(onClick = { vm.scanAgain() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Slate,
+                contentColor = Color.White
+            )
+        ) {
+            Text("Scan Again")
+        }
         Spacer(Modifier.height(10.dp))
-        Button(onClick = { vm.goToHome() }) { Text("Home") }
+        Button(onClick = { vm.goToHome() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Slate,
+                contentColor = Color.White
+            )
+        ) {
+            Text("Home")
+        }
     }
 }
 

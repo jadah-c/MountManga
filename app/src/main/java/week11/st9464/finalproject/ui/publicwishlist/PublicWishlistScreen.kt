@@ -3,7 +3,9 @@ package week11.st9464.finalproject.ui.publicwishlist
 
 import android.annotation.SuppressLint
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -15,6 +17,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import week11.st9464.finalproject.model.WishlistMangaKey
+import week11.st9464.finalproject.ui.theme.BurntOrange
+import week11.st9464.finalproject.ui.theme.Lavender
+import week11.st9464.finalproject.ui.theme.Slate
 import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 
 
@@ -86,7 +91,12 @@ fun PublicWishlistScreen(vm: MainViewModel) {
                     value = comment,
                     onValueChange = { comment = it },
                     label = { Text("Comment") },
-                    singleLine = false
+                    singleLine = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Slate,
+                        unfocusedBorderColor = Slate.copy(alpha = 0.4f),
+                        cursorColor = Slate
+                )
                 )
             },
             confirmButton = {
@@ -98,7 +108,11 @@ fun PublicWishlistScreen(vm: MainViewModel) {
                         // Save locally - Mihai Panait (991622264)
                         vm.setLocalCommentPublic(key.wishlistName, key.manga, comment)
                         editingMangaKey = null
-                    }) { Text("Save") }
+                    },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Slate)
+                    ) {
+                        Text("Save")
+                    }
 
                     TextButton(onClick = {
                         // Clear comment on Firebase - Mihai Panait (991622264)
@@ -106,11 +120,19 @@ fun PublicWishlistScreen(vm: MainViewModel) {
                         // Remove locally - Mihai Panait (991622264)
                         vm.removeLocalCommentPublic(key.wishlistName, key.manga)
                         editingMangaKey = null
-                    }) { Text("Clear") }
+                    },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Lavender)
+                    ) {
+                        Text("Clear")
+                    }
                 }
             },
             dismissButton = {
-                TextButton(onClick = { editingMangaKey = null }) { Text("Cancel") }
+                TextButton(onClick = { editingMangaKey = null },
+                    colors = ButtonDefaults.textButtonColors(contentColor = BurntOrange)
+                ) {
+                    Text("Cancel")
+                }
             }
         )
     }

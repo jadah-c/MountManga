@@ -1,5 +1,7 @@
 package week11.st9464.finalproject.ui.splash
 
+import android.R.attr.maxHeight
+import android.R.attr.maxWidth
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -10,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -41,16 +45,12 @@ import week11.st9464.finalproject.viewmodel.MainViewModel
 // Created Splash Screen - Jadah C (sID #991612594)
 @Composable
 fun SplashScreen(vm: MainViewModel) {
-    val boxSize = 120.dp
-    val boxPadding = 4.dp
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFEEEEEE))
     ) {
-        // Created a diagonal grid - Jadah C (sID #991612594)
-        MangaDiagonalBackground(boxSize = boxSize, boxPadding = boxPadding)
+        MangaDiagonalBackground()
 
         Column(
             modifier = Modifier
@@ -59,6 +59,7 @@ fun SplashScreen(vm: MainViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
             Text(
                 text = "Mount Manga",
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -107,89 +108,98 @@ fun SplashScreen(vm: MainViewModel) {
 }
 
 @Composable
-fun MangaDiagonalBackground(
-    boxSize: Dp = 120.dp,
-    boxPadding: Dp = 4.dp
-) {
-    val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
-    val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
-    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
-
-    val boxSizePx = with(density) { boxSize.toPx() }
-    val paddingPx = with(density) { boxPadding.toPx() }
-
-    val rows = 6
-    val columns = 3
-
-    val imageUrls = listOf(
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
-        "https://cdn.myanimelist.net/images/anime/1015/138006.jpg"
-    )
-
-    val gridWidth = columns * boxSizePx + (columns - 1) * paddingPx
-    val gridHeight = rows * boxSizePx + (rows - 1) * paddingPx
-
-    val startX = screenWidthPx + gridWidth
-    val startY = screenHeightPx + gridHeight
-    val endX = -gridWidth / 2
-    val endY = -gridHeight / 2
-
-    val infiniteTransition = rememberInfiniteTransition()
-    val animProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(14000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+fun MangaDiagonalBackground() {
+        val imageUrls = listOf(
+            "https://cdn.myanimelist.net/images/anime/1015/138006.jpg", // Frieren
+            "https://cdn.myanimelist.net/images/anime/11/50453.jpg", // Kuroko's Basketball
+            "https://cdn.myanimelist.net/images/anime/1171/109222.jpg", // JJK
+            "https://cdn.myanimelist.net/images/manga/2/258225.jpg", // Haikyuu
+            "https://cdn.myanimelist.net/images/manga/3/120337.jpg", // Mushoku Tensei
+            "https://cdn.myanimelist.net/images/manga/1/129447.jpg", // Re: Zero
+            "https://cdn.myanimelist.net/images/manga/2/253119.jpg", // Hunter x Hunter
+            "https://cdn.myanimelist.net/images/manga/3/80661.jpg", // One Punch Man
+            "https://cdn.myanimelist.net/images/manga/3/216464.jpg", // Chainsaw Man
+            "https://cdn.myanimelist.net/images/manga/1/264496.jpg", // Pluto
+            "https://cdn.myanimelist.net/images/manga/3/222295.jpg", // Solo Levelling
+            "https://cdn.myanimelist.net/images/manga/3/186073.jpg", // Fate
+            "https://cdn.myanimelist.net/images/manga/2/288894.jpg", // Bungo Stray Dogs
+            "https://cdn.myanimelist.net/images/manga/3/219741.jpg", // Spy x Family
+            "https://cdn.myanimelist.net/images/manga/2/215054.jpg" // My Dress Up Darling
         )
-    )
 
-    val mappedProgress = if (animProgress <= 0.85f) {
-        animProgress / 0.85f * 0.85f
-    } else {
-        0.85f + (animProgress - 0.85f) / 0.15f * 0.15f
-    }
+    val density = LocalDensity.current
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val boxSize = 140.dp
+        val padding = 8.dp
+        val boxPx = with(density) { boxSize.toPx() }
+        val padPx = with(density) { padding.toPx() }
 
-    val currentX = startX + (endX - startX) * mappedProgress
-    val currentY = startY + (endY - startY) * mappedProgress
+        val widthPx = with(density) { maxWidth.toPx() }
+        val heightPx = with(density) { maxHeight.toPx() }
 
-    var imageIndex = 0
+        val columns = (widthPx / (boxPx + padPx)).toInt().coerceAtLeast(3) + 2
+        val rows = (heightPx / (boxPx + padPx)).toInt().coerceAtLeast(3) + 2
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                translationX = currentX - gridWidth / 2
-                translationY = currentY - gridHeight / 2
-            }
-    ) {
-        Column {
-            repeat(rows) {
-                Row {
-                    repeat(columns) {
-                        Image(
-                            painter = rememberAsyncImagePainter(imageUrls[imageIndex % imageUrls.size]),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(boxPadding)
-                                .size(boxSize)
-                                .clip(RoundedCornerShape(8.dp))
-                        )
-                        imageIndex++
+        val gridWidth = columns * (boxPx + padPx)
+        val gridHeight = rows * (boxPx + padPx)
+
+        val infiniteTransition = rememberInfiniteTransition()
+        val offset by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                tween(18000, easing = LinearEasing),
+                RepeatMode.Restart
+            )
+        )
+
+        val translationX = lerp(gridWidth, -gridWidth, offset)
+        val translationY = lerp(gridHeight, -gridHeight, offset)
+
+        @Composable
+        fun Grid(offsetX: Float, offsetY: Float) {
+            Column(
+                modifier = Modifier
+                    .graphicsLayer {
+                        this.translationX = offsetX
+                        this.translationY = offsetY
+                    }
+            ) {
+                repeat(rows) { r ->
+                    Row {
+                        repeat(columns) { c ->
+                            val index = (r * columns + c) % imageUrls.size
+                            Box(
+                                modifier = Modifier
+                                    .padding(padding)
+                                    .size(boxSize)
+                                    .clip(RoundedCornerShape(10.dp))
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(imageUrls[index]),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize() 
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            Grid(translationX, translationY)
+            Grid(translationX + gridWidth, translationY + gridHeight)
+
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.10f))
+            )
+        }
     }
+}
+fun lerp(start: Float, stop: Float, amount: Float): Float {
+    return start + (stop - start) * amount
 }

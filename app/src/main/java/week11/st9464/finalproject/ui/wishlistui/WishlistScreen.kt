@@ -1,5 +1,6 @@
 package week11.st9464.finalproject.ui.wishlistui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import week11.st9464.finalproject.model.MangaInfo
 import week11.st9464.finalproject.model.WishlistMangaKey
+import week11.st9464.finalproject.ui.theme.BurntOrange
+import week11.st9464.finalproject.ui.theme.Cream
+import week11.st9464.finalproject.ui.theme.EarthBrown
+import week11.st9464.finalproject.ui.theme.Lavender
+import week11.st9464.finalproject.ui.theme.Slate
 
 // Moved the WishlistScreen into it's own file for easier access - Mihai Panait (991622264)
 // Function that I also use in PrivateWishlistScreen and PublicWishlistScreen - Mihai Panait (991622264)
@@ -44,18 +51,19 @@ fun WishlistScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Lavender)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(title, style = MaterialTheme.typography.headlineLarge)
+        Text(title, style = MaterialTheme.typography.headlineLarge, color = EarthBrown)
         subtitle?.let {
-            Text(it, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 4.dp))
+            Text(it, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 4.dp), color = EarthBrown)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (mangaList.isEmpty()) {
-            Text("No manga in this wishlist.", style = MaterialTheme.typography.bodyLarge)
+            Text("No manga in this wishlist.", style = MaterialTheme.typography.bodyLarge, color = EarthBrown)
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -84,9 +92,35 @@ fun WishlistScreen(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             if (showEditDelete) {
-                Button(onClick = { onEditSelected(commentMap) }) { Text("Edit Selected") }
-                Button(onClick = onDeleteSelected) { Text("Delete Selected") }
-                Button(onClick = onHome) { Text(homeButtonText) }
+                Button(
+                    onClick = { onEditSelected(commentMap) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Slate,
+                        contentColor = Cream
+                    )
+                ) {
+                    Text("Edit Selected")
+                }
+
+                Button(
+                    onClick = onDeleteSelected,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = BurntOrange,
+                        contentColor = Cream
+                    )
+                ) {
+                    Text("Delete Selected")
+                }
+
+                Button(
+                    onClick = onHome,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = EarthBrown,
+                        contentColor = Cream
+                    )
+                ) {
+                    Text(homeButtonText)
+                }
             }
         }
     }

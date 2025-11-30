@@ -11,8 +11,14 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 // Added new colors - Jadah C (sID #991612594)
-val DarkYellow = Color(0xFFFFC247)
-
 val BurntOrange = Color(0xFFE07C2F)
 
 val EarthBrown = Color(0xFF9C5B1F)
+
+val Lavender = Color(0xFFC5D1EB)
+
+val Slate = Color (0xFF92AFD7)
+
+val Golden = Color(0xFFFFD012)
+
+val Cream = Color (0xFFFFFAF1)

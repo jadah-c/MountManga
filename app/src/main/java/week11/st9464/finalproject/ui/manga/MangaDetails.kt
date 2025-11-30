@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -40,6 +41,11 @@ import org.json.JSONObject
 import week11.st9464.finalproject.model.MangaInfo
 import week11.st9464.finalproject.model.WishlistMangaKey
 import week11.st9464.finalproject.ui.scan.fetchMangaFromJikan
+import week11.st9464.finalproject.ui.theme.Cream
+import week11.st9464.finalproject.ui.theme.EarthBrown
+import week11.st9464.finalproject.ui.theme.Golden
+import week11.st9464.finalproject.ui.theme.Lavender
+import week11.st9464.finalproject.ui.theme.Slate
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import java.net.URL
 import java.net.URLEncoder
@@ -88,6 +94,7 @@ fun MangaDetails(vm: MainViewModel) {
     Column(
         Modifier
             .fillMaxSize()
+            .background(Cream)
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -117,9 +124,13 @@ fun MangaDetails(vm: MainViewModel) {
                 )
                 vm.addSelectedToPrivate(allSelected)
             },
+            colors = ButtonDefaults.buttonColors(
+                    containerColor = EarthBrown,
+                    contentColor = Golden
+        ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Add Selected to Private Wishlist")
+            Text("Add Selected to Private Wishlist", color = Slate)
         }
 
         Spacer(Modifier.height(4.dp))
@@ -138,7 +149,7 @@ fun MangaDetails(vm: MainViewModel) {
                     value = selectedExistingWishlist,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Select Existing Wishlist") },
+                    label = { Text("Select Existing Wishlist", color = EarthBrown) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
                     modifier = Modifier
@@ -173,7 +184,7 @@ fun MangaDetails(vm: MainViewModel) {
             OutlinedTextField(
                 value = newWishlistName,
                 onValueChange = { newWishlistName = it },
-                label = { Text("New Wishlist Name") },
+                label = { Text("New Wishlist Name", color = EarthBrown) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -200,24 +211,37 @@ fun MangaDetails(vm: MainViewModel) {
                     vm.showWishlistMessage("Please select or enter a wishlist name.")
                 }
             },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = EarthBrown,
+                contentColor = Golden
+            ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Add Selected to Public Wishlist")
+            Text("Add Selected to Public Wishlist", color = Slate)
         }
 
         Spacer(Modifier.height(12.dp))
 
         Button(
             onClick = { vm.goToScan() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Slate,
+                contentColor = Color.White
+            ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Return to Scan")
+            Text("Return to Scan", color = EarthBrown)
         }
 
         Spacer(Modifier.height(4.dp))
 
-        Button(onClick = { vm.goToHome() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Home")
+        Button(onClick = { vm.goToHome() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Slate,
+                contentColor = Color.White
+            ),
+            modifier = Modifier.fillMaxWidth()) {
+            Text("Home", color = EarthBrown)
         }
     }
 }
@@ -261,7 +285,7 @@ fun SectionHeader(text: String) {
             modifier = Modifier
                 .width(4.dp)
                 .height(20.dp)
-                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                .background(Lavender, RoundedCornerShape(2.dp))
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(text, style = MaterialTheme.typography.titleLarge)
@@ -343,6 +367,7 @@ fun RecommendationCard(manga: MangaInfo, vm: MainViewModel) {
         modifier = Modifier
             .width(140.dp)
             .clip(RoundedCornerShape(12.dp))
+            .background(Lavender)
     ) {
         Checkbox(
             checked = selected,
@@ -359,7 +384,7 @@ fun RecommendationCard(manga: MangaInfo, vm: MainViewModel) {
             contentScale = ContentScale.Crop
         )
 
-        Text(manga.title, maxLines = 2)
+        Text(manga.title, color = EarthBrown, maxLines = 2)
 
         if (manga.genres.isNotEmpty()) {
             Text(

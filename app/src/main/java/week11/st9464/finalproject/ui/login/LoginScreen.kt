@@ -3,6 +3,7 @@ package week11.st9464.finalproject.ui.login
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,8 +36,11 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import week11.st9464.finalproject.ui.theme.BurntOrange
-import week11.st9464.finalproject.ui.theme.DarkYellow
+import week11.st9464.finalproject.ui.theme.Cream
 import week11.st9464.finalproject.ui.theme.EarthBrown
+import week11.st9464.finalproject.ui.theme.Golden
+import week11.st9464.finalproject.ui.theme.Lavender
+import week11.st9464.finalproject.ui.theme.Slate
 import week11.st9464.finalproject.viewmodel.MainViewModel
 
 // Created the Login Screen - Jadah C (sID #991612594)
@@ -54,10 +59,12 @@ fun LoginScreen(vm: MainViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(24.dp)
+            .background(Cream),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    ) {
+    )
+    {
         // Created a Top Bar with title - Jadah C (#991612594)
         CenterAlignedTopAppBar(
             title = {
@@ -66,9 +73,16 @@ fun LoginScreen(vm: MainViewModel) {
                     style = MaterialTheme.typography.headlineMedium.copy(fontSize = 26.sp),
                     textAlign = TextAlign.Center,
                     textDecoration = TextDecoration.Underline,
-                    color = BurntOrange
+                    color = Slate
                 )
-            }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent,
+                navigationIconContentColor = Slate,
+                titleContentColor = Slate,
+                actionIconContentColor = Slate
+            )
         )
 
         Spacer(Modifier.height(24.dp))
@@ -78,7 +92,7 @@ fun LoginScreen(vm: MainViewModel) {
             style = MaterialTheme.typography.headlineMedium.copy(fontSize = 26.sp),
             textAlign = TextAlign.Center,
             textDecoration = TextDecoration.Underline,
-            color = BurntOrange
+            color = Slate
         )
 
         Spacer(Modifier.height(24.dp))
@@ -87,12 +101,14 @@ fun LoginScreen(vm: MainViewModel) {
         OutlinedTextField(
             value = emailState.value,
             onValueChange = { emailState.value = it },
-            label = { Text("Email", color = Color.Black) },
+            label = { Text("Email", color = Slate) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = EarthBrown,
-                unfocusedBorderColor = EarthBrown.copy(alpha = 0.5f)
+                focusedBorderColor = Slate,
+                unfocusedBorderColor = Slate.copy(alpha = 0.5f),
+                focusedLabelColor = Slate,
+                cursorColor = Slate,
             )
         )
 
@@ -102,13 +118,15 @@ fun LoginScreen(vm: MainViewModel) {
         OutlinedTextField(
             value = passwordState.value,
             onValueChange = { passwordState.value = it },
-            label = { Text("Password", color = Color.Black) },
+            label = { Text("Password", color = Slate) },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = EarthBrown,
-                unfocusedBorderColor = EarthBrown.copy(alpha = 0.5f)
+                focusedBorderColor = Slate,
+                unfocusedBorderColor = Slate.copy(alpha = 0.5f),
+                focusedLabelColor = Slate,
+                cursorColor = Slate,
             )
         )
 
@@ -121,16 +139,16 @@ fun LoginScreen(vm: MainViewModel) {
         ) {
             Button(
                 onClick = { vm.signIn(emailState.value.trim(), passwordState.value.trim()) },
-                colors = ButtonDefaults.buttonColors(containerColor = DarkYellow)
+                colors = ButtonDefaults.buttonColors(containerColor = Lavender)
             ) {
-                Text("Login", color = Color.Black)
+                Text("Login", color = Color.White)
             }
 
             Button(
                 onClick = { vm.signUp(emailState.value.trim(), passwordState.value.trim()) },
-                colors = ButtonDefaults.buttonColors(containerColor = DarkYellow)
+                colors = ButtonDefaults.buttonColors(containerColor = Lavender)
             ) {
-                Text("Sign Up", color = Color.Black)
+                Text("Sign Up", color = Color.White)
             }
         }
     }
