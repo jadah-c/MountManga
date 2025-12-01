@@ -34,6 +34,7 @@ import week11.st9464.finalproject.ui.theme.Cream
 import week11.st9464.finalproject.ui.theme.EarthBrown
 import week11.st9464.finalproject.ui.theme.Lavender
 import week11.st9464.finalproject.ui.theme.Slate
+import week11.st9464.finalproject.ui.theme.parisFontFamily
 
 // Moved the WishlistCard into it's own file for easier access - Mihai Panait (991622264)
 @Composable

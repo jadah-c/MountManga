@@ -1,6 +1,5 @@
 package week11.st9464.finalproject.ui.scan
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
@@ -31,10 +32,10 @@ import week11.st9464.finalproject.ui.theme.Cream
 import week11.st9464.finalproject.ui.theme.EarthBrown
 import week11.st9464.finalproject.ui.theme.Golden
 import week11.st9464.finalproject.ui.theme.Slate
+import week11.st9464.finalproject.ui.theme.parisFontFamily
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import java.net.URLEncoder
 import java.net.URL
-
 
 // Created the Scan Result screen - Mihai Panait (#991622264)
 // API, ML Kit - Mihai Panait (#991622264)
@@ -69,7 +70,14 @@ fun ScanResultScreen(vm: MainViewModel) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Scan Result", color = EarthBrown, modifier = Modifier.padding(8.dp))
+        Text(
+            "Scan Result",
+            color = EarthBrown,
+            fontFamily = parisFontFamily,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp)
+        )
 
         Spacer(Modifier.height(20.dp))
 
@@ -81,7 +89,7 @@ fun ScanResultScreen(vm: MainViewModel) {
                 contentScale = ContentScale.Crop
             )
         } else {
-            Text("No Image Found", color = Slate)
+            Text("No Image Found", color = Slate, fontWeight = FontWeight.Bold)
         }
 
         Spacer(Modifier.height(12.dp))
@@ -99,7 +107,7 @@ fun ScanResultScreen(vm: MainViewModel) {
                 contentColor = Golden
             )
         ) {
-            Text("View Manga Details")
+            Text("View Manga Details", fontWeight = FontWeight.Bold)
         }
 
         Spacer(Modifier.height(16.dp))
@@ -112,22 +120,24 @@ fun ScanResultScreen(vm: MainViewModel) {
 
         Spacer(Modifier.height(30.dp))
 
-        Button(onClick = { vm.scanAgain() },
+        Button(
+            onClick = { vm.scanAgain() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Slate,
                 contentColor = Color.White
             )
         ) {
-            Text("Scan Again")
+            Text("Scan Again", fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(10.dp))
-        Button(onClick = { vm.goToHome() },
+        Button(
+            onClick = { vm.goToHome() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Slate,
                 contentColor = Color.White
             )
         ) {
-            Text("Home")
+            Text("Home", fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -161,7 +171,6 @@ fun levenshtein(a: String, b: String): Int {
     }
     return dp[a.length][b.length]
 }
-
 
 fun isCloseMatch(a: String, b: String, thresholdPercent: Int = 40): Boolean {
     val distance = levenshtein(a, b)
@@ -210,7 +219,14 @@ suspend fun fetchMangaFromJikan(query: String): MangaInfo? {
                 }
             }
 
-            MangaInfo(id = best.getInt("mal_id").toString(), title, author, image, volumes?.toString() ?: "", genres)
+            MangaInfo(
+                id = best.getInt("mal_id").toString(),
+                title,
+                author,
+                image,
+                volumes?.toString() ?: "",
+                genres
+            )
 
         } catch (e: Exception) {
             e.printStackTrace()

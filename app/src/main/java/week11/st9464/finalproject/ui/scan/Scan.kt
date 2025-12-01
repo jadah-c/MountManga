@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -45,7 +46,9 @@ fun Scan(vm: MainViewModel) {
 
     var currentDetectedText by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize().background(Slate)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Slate)) {
         if (cameraPermissionState.status.isGranted) {
 
             Box(modifier = Modifier.weight(1f)) {
@@ -66,7 +69,7 @@ fun Scan(vm: MainViewModel) {
                 colors = ButtonDefaults.buttonColors(containerColor = Golden),
                 enabled = currentDetectedText.isNotBlank()
             ) {
-                Text("Capture", color = Slate)
+                Text("Capture", color = Slate, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -77,7 +80,7 @@ fun Scan(vm: MainViewModel) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Golden)
-            ) { Text("Back to Home", color = Slate) }
+            ) { Text("Back to Home", color = Slate, fontWeight = FontWeight.Bold) }
 
         } else {
             Column(
@@ -92,7 +95,7 @@ fun Scan(vm: MainViewModel) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
-                    Text("Grant Permission")
+                    Text("Grant Permission", fontWeight = FontWeight.Bold)
                 }
             }
         }

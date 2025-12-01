@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -41,6 +42,7 @@ import week11.st9464.finalproject.ui.theme.EarthBrown
 import week11.st9464.finalproject.ui.theme.Golden
 import week11.st9464.finalproject.ui.theme.Lavender
 import week11.st9464.finalproject.ui.theme.Slate
+import week11.st9464.finalproject.ui.theme.parisFontFamily
 import week11.st9464.finalproject.viewmodel.MainViewModel
 
 // Created the Login Screen - Jadah C (sID #991612594)
@@ -73,7 +75,9 @@ fun LoginScreen(vm: MainViewModel) {
                     style = MaterialTheme.typography.headlineMedium.copy(fontSize = 26.sp),
                     textAlign = TextAlign.Center,
                     textDecoration = TextDecoration.Underline,
-                    color = Slate
+                    color = Slate,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = parisFontFamily
                 )
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -92,7 +96,9 @@ fun LoginScreen(vm: MainViewModel) {
             style = MaterialTheme.typography.headlineMedium.copy(fontSize = 26.sp),
             textAlign = TextAlign.Center,
             textDecoration = TextDecoration.Underline,
-            color = Slate
+            color = Slate,
+            fontWeight = FontWeight.Bold,
+            fontFamily = parisFontFamily
         )
 
         Spacer(Modifier.height(24.dp))
@@ -101,7 +107,7 @@ fun LoginScreen(vm: MainViewModel) {
         OutlinedTextField(
             value = emailState.value,
             onValueChange = { emailState.value = it },
-            label = { Text("Email", color = Slate) },
+            label = { Text("Email", color = Slate, fontWeight = FontWeight.Bold) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
@@ -118,7 +124,7 @@ fun LoginScreen(vm: MainViewModel) {
         OutlinedTextField(
             value = passwordState.value,
             onValueChange = { passwordState.value = it },
-            label = { Text("Password", color = Slate) },
+            label = { Text("Password", color = Slate, fontWeight = FontWeight.Bold) },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
@@ -141,14 +147,14 @@ fun LoginScreen(vm: MainViewModel) {
                 onClick = { vm.signIn(emailState.value.trim(), passwordState.value.trim()) },
                 colors = ButtonDefaults.buttonColors(containerColor = Lavender)
             ) {
-                Text("Login", color = Color.White)
+                Text("Login", color = Color.White, fontWeight = FontWeight.Bold)
             }
 
             Button(
                 onClick = { vm.signUp(emailState.value.trim(), passwordState.value.trim()) },
                 colors = ButtonDefaults.buttonColors(containerColor = Lavender)
             ) {
-                Text("Sign Up", color = Color.White)
+                Text("Sign Up", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }

@@ -2,9 +2,11 @@ package week11.st9464.finalproject.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import week11.st9464.finalproject.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -31,4 +33,9 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+
+// Added new font family - Jadah Charan (#991612594)
+val parisFontFamily = FontFamily(
+    Font(R.font.parisienne_regular, FontWeight.Black)
 )

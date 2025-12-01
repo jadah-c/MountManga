@@ -18,11 +18,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import week11.st9464.finalproject.ui.theme.Cream
 import week11.st9464.finalproject.ui.theme.Golden
 import week11.st9464.finalproject.ui.theme.Lavender
 import week11.st9464.finalproject.ui.theme.Slate
+import week11.st9464.finalproject.ui.theme.parisFontFamily
 import week11.st9464.finalproject.viewmodel.MainViewModel
 
 // Created Home Screen - Jadah C (sID #991612594)
@@ -41,13 +43,15 @@ fun HomeScreen(vm: MainViewModel) {
         Text(
             text = "Home",
             style = MaterialTheme.typography.headlineMedium,
-            color = Golden
+            color = Golden,
+            fontWeight = FontWeight.Bold,
+            fontFamily = parisFontFamily
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         currentUser?.let { user ->
-            Text("Logged in as: ${user.email}", color = Golden)
+            Text("Logged in as: ${user.email}", fontWeight = FontWeight.Bold, color = Golden)
             Spacer(modifier = Modifier.height(24.dp))
 
             val buttonModifier = Modifier
@@ -69,11 +73,11 @@ fun HomeScreen(vm: MainViewModel) {
                     modifier = buttonModifier,
                     colors = ButtonDefaults.buttonColors(containerColor = Cream)
                 ) {
-                    Text(label, color = Slate)
+                    Text(label, color = Slate, fontWeight = FontWeight.Bold)
                 }
             }
         } ?: run {
-            Text("User not available", color = Color.Red)
+            Text("User not available", color = Color.Red, fontWeight = FontWeight.Bold)
         }
     }
 }

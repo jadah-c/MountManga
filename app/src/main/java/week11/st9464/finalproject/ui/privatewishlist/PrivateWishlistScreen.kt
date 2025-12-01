@@ -15,10 +15,12 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.font.FontWeight
 import week11.st9464.finalproject.model.WishlistMangaKey
 import week11.st9464.finalproject.ui.theme.BurntOrange
 import week11.st9464.finalproject.ui.theme.Lavender
 import week11.st9464.finalproject.ui.theme.Slate
+import week11.st9464.finalproject.ui.theme.parisFontFamily
 import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 import week11.st9464.finalproject.viewmodel.MainViewModel
 
@@ -48,7 +50,6 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
 
     WishlistScreen(
         title = "Private Wishlist",
-        subtitle = wishlistName,
         wishlistName = wishlistName,
         mangaList = vm.privateWishlist,
         selectedManga = vm.selectedManga,
@@ -81,7 +82,7 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
 
         AlertDialog(
             onDismissRequest = { editingMangaKey = null },
-            title = { Text("Edit Comment", color = Slate) },
+            title = { Text("Edit Comment", color = Slate, fontWeight = FontWeight.Bold) },
             text = {
                 OutlinedTextField(
                     value = comment,
@@ -98,36 +99,41 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
             confirmButton = {
                 // Row to hold both Save and Clear - Mihai Panait (991622264)
                 androidx.compose.foundation.layout.Row {
-                    TextButton(onClick = {
-                        // Save comment to Firebase - Mihai Panait (991622264)
-                        vm.updatePrivateMangaComment(key.manga, comment)
-                        // Save locally - Mihai Panait (991622264)
-                        vm.setLocalComment(wishlistName, key.manga, comment)
-                        editingMangaKey = null
-                    },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Slate))
+                    TextButton(
+                        onClick = {
+                            // Save comment to Firebase - Mihai Panait (991622264)
+                            vm.updatePrivateMangaComment(key.manga, comment)
+                            // Save locally - Mihai Panait (991622264)
+                            vm.setLocalComment(wishlistName, key.manga, comment)
+                            editingMangaKey = null
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Slate)
+                    )
                     {
-                        Text("Save")
+                        Text("Save", fontWeight = FontWeight.Bold)
                     }
 
-                    TextButton(onClick = {
-                        // Clear comment on Firebase - Mihai Panait (991622264)
-                        vm.updatePrivateMangaComment(key.manga, "")
-                        // Remove locally - Mihai Panait (991622264)
-                        vm.removeLocalComment(wishlistName, key.manga)
-                        editingMangaKey = null
-                    },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Lavender))
+                    TextButton(
+                        onClick = {
+                            // Clear comment on Firebase - Mihai Panait (991622264)
+                            vm.updatePrivateMangaComment(key.manga, "")
+                            // Remove locally - Mihai Panait (991622264)
+                            vm.removeLocalComment(wishlistName, key.manga)
+                            editingMangaKey = null
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Lavender)
+                    )
                     {
-                        Text("Clear")
+                        Text("Clear", fontWeight = FontWeight.Bold)
                     }
                 }
             },
             dismissButton = {
-                TextButton(onClick = { editingMangaKey = null },
+                TextButton(
+                    onClick = { editingMangaKey = null },
                     colors = ButtonDefaults.textButtonColors(contentColor = BurntOrange)
                 ) {
-                    Text("Cancel")
+                    Text("Cancel", fontWeight = FontWeight.Bold)
                 }
             }
         )

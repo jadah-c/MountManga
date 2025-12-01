@@ -21,11 +21,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -37,17 +40,21 @@ import week11.st9464.finalproject.model.MangaInfo
 import week11.st9464.finalproject.model.PublicWishlistSummary
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import week11.st9464.finalproject.ui.theme.BurntOrange
 import week11.st9464.finalproject.ui.theme.Cream
 import week11.st9464.finalproject.ui.theme.EarthBrown
 import week11.st9464.finalproject.ui.theme.Golden
 import week11.st9464.finalproject.ui.theme.Lavender
 import week11.st9464.finalproject.ui.theme.Slate
+import week11.st9464.finalproject.ui.theme.parisFontFamily
 import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 
 
 // Created GlobalWishBoard Screen - Jadah C (sID #991612594)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalWishBoardScreen(vm: MainViewModel) {
     // Load summaries when screen is first displayed - Mihai Panait (991622264)
@@ -55,11 +62,29 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
         vm.loadGlobalWishlistSummaries()
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(Lavender).padding(16.dp)) {
-        Text(
-            "Global Wishlist Board",
-            style = MaterialTheme.typography.headlineMedium,
-            color = EarthBrown
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Lavender)
+            .padding(16.dp)
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    "Global Wishlist Board",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = EarthBrown,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = parisFontFamily
+                )
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent,
+                navigationIconContentColor = Lavender,
+                titleContentColor = Lavender,
+                actionIconContentColor = Lavender
+            )
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -70,17 +95,39 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                 .padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Users", color = EarthBrown, modifier = Modifier.weight(2f))
-            Text("Number of Manga", color = EarthBrown, modifier = Modifier.weight(1f))
-            Text("Wishlist Name", color = EarthBrown, modifier = Modifier.weight(2f))
-            Text("Select", color = EarthBrown, modifier = Modifier.weight(1f))
+            Text(
+                "Users",
+                color = EarthBrown,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(2f)
+            )
+            Text(
+                "Number of Manga",
+                color = EarthBrown,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                "Wishlist Name",
+                color = EarthBrown,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(2f)
+            )
+            Text(
+                "Select",
+                color = EarthBrown,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // Scrollable list of wishlist summaries - Mihai Panait (991622264)
         LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(vm.globalWishlistSummaries) { summary ->
@@ -112,16 +159,18 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 8.dp)
         ) {
-            Text("View Selected Wishlist")
+            Text("View Selected Wishlist", fontWeight = FontWeight.Bold)
         }
 
-        Button(onClick = { vm.goToHome() },
+        Button(
+            onClick = { vm.goToHome() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = EarthBrown,
                 contentColor = Cream
             ),
-            modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Text("Back to Home")
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Back to Home", fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -139,19 +188,22 @@ fun WishlistSummaryRow(
             .background(
                 if (summary.uid == currentUserUid)
                     Golden.copy(alpha = 0.3f)
-                    //MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                 else
                     Cream,
-                    //MaterialTheme.colorScheme.surface,
+
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(vertical = 8.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(summary.email, modifier = Modifier.weight(2f))
-        Text(summary.mangaCount.toString(), modifier = Modifier.weight(1f))
-        Text(summary.wishlistName, modifier = Modifier.weight(2f))
+        Text(summary.email, fontWeight = FontWeight.Bold, modifier = Modifier.weight(2f))
+        Text(
+            summary.mangaCount.toString(),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
+        Text(summary.wishlistName, fontWeight = FontWeight.Bold, modifier = Modifier.weight(2f))
         Checkbox(
             checked = isSelected,
             onCheckedChange = { onSelect() },
@@ -166,21 +218,44 @@ fun WishlistSummaryRow(
 }
 
 //Wishlist content - Mihai Panait (991622264)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalWishlistContentScreen(vm: MainViewModel) {
     val (_, wishlistName) = vm.selectedGlobalWishlist ?: Pair("", "")
 
-    Column(modifier = Modifier.fillMaxSize().background(Lavender).padding(16.dp)) {
-        Text(
-            wishlistName.ifEmpty { "Wishlist" },
-            style = MaterialTheme.typography.headlineLarge,
-            color = EarthBrown
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Lavender)
+            .padding(16.dp)
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    wishlistName.ifEmpty { "Wishlist" },
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = EarthBrown,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = parisFontFamily
+                )
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent,
+                navigationIconContentColor = Lavender,
+                titleContentColor = Lavender,
+                actionIconContentColor = Lavender
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (vm.selectedGlobalWishlistManga.isEmpty()) {
-            Text("No manga in this wishlist.", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "No manga in this wishlist.",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge
+            )
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -201,7 +276,13 @@ fun GlobalWishlistContentScreen(vm: MainViewModel) {
                                 .clip(RoundedCornerShape(8.dp))
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(manga.title, style = MaterialTheme.typography.bodyMedium, color = EarthBrown, maxLines = 2)
+                        Text(
+                            manga.title,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = EarthBrown,
+                            maxLines = 2
+                        )
                     }
                 }
             }
@@ -211,9 +292,10 @@ fun GlobalWishlistContentScreen(vm: MainViewModel) {
 
         Button(
             onClick = { vm.goToGlobalWishBoard() },
-            modifier = Modifier.align(Alignment.CenterHorizontally), colors = ButtonDefaults.buttonColors(containerColor = Golden)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            colors = ButtonDefaults.buttonColors(containerColor = Golden)
         ) {
-            Text("Back to Global Wishboard", color = Slate)
+            Text("Back to Global Wishboard", fontWeight = FontWeight.Bold, color = Slate)
         }
     }
 }
