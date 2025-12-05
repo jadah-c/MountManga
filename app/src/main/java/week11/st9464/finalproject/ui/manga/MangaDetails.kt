@@ -10,7 +10,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -74,7 +76,8 @@ fun MangaDetails(vm: MainViewModel) {
     LaunchedEffect(Unit) { vm.loadMyPublicWishlistSummaries() }
 
     LaunchedEffect(scannedText) {
-        val result = fetchMangaFromJikan(scannedText)
+        // Added scannedLanguage for the Japanese Titles - Mihai Panait (991622264)
+        val result = fetchMangaFromJikan(scannedText, vm.scannedLanguage)
         if (result != null) {
             manga = result
             fetchState = "Success"
@@ -95,6 +98,8 @@ fun MangaDetails(vm: MainViewModel) {
     Column(
         Modifier
             .fillMaxSize()
+            // Added the verticalScroll so that the user can scroll on their phone - Mihai Panait (991622264)
+            .verticalScroll(rememberScrollState())
             .background(Cream)
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -346,6 +351,7 @@ fun MangaInfoSection(manga: MangaInfo, vm: MainViewModel) {
         Column {
             Text("Title: ${manga.title}")
             Text("Author: ${manga.author}")
+            Text("Volume(s): ${manga.volume}")
             Text("Genre: ${if (manga.genres.isEmpty()) "TBD" else manga.genres.joinToString(", ")}")
         }
     }
@@ -479,19 +485,23 @@ suspend fun fetchRecommendations(title: String, genres1: List<String>): List<Man
             val encoded = URLEncoder.encode(title, "UTF-8")
             val searchUrl = "https://api.jikan.moe/v4/manga?q=$encoded&limit=1"
             val searchObj = fetchJson(searchUrl) ?: return@withContext emptyList()
+
             val data = searchObj.getJSONArray("data")
             if (data.length() == 0) return@withContext emptyList()
 
             val malId = data.getJSONObject(0).getInt("mal_id")
 
+            // Now fetch recommendations
             val recUrl = "https://api.jikan.moe/v4/manga/$malId/recommendations"
             val recObj = fetchJson(recUrl) ?: return@withContext emptyList()
             val recData = recObj.getJSONArray("data")
 
+            // Limit to 3 recommendations
             (0 until minOf(3, recData.length())).map { i ->
                 val entry = recData.getJSONObject(i).getJSONObject("entry")
                 val recId = entry.getInt("mal_id")
 
+                // Respect Jikan API rate limit
                 Thread.sleep(1000)
 
                 val detailsUrl = "https://api.jikan.moe/v4/manga/$recId"
@@ -532,7 +542,8 @@ suspend fun fetchRecommendations(title: String, genres1: List<String>): List<Man
                         id = recId.toString(),
                         title = entry.getString("title"),
                         author = "Unknown",
-                        imageUrl = entry.getJSONObject("images").getJSONObject("jpg")
+                        imageUrl = entry.getJSONObject("images")
+                            .getJSONObject("jpg")
                             .getString("image_url"),
                         volume = "",
                         genres = emptyList()
@@ -546,4 +557,3 @@ suspend fun fetchRecommendations(title: String, genres1: List<String>): List<Man
         }
     }
 }
-

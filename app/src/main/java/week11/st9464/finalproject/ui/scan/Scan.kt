@@ -27,6 +27,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import week11.st9464.finalproject.ui.theme.Golden
 import week11.st9464.finalproject.ui.theme.Lavender
@@ -35,6 +36,7 @@ import week11.st9464.finalproject.viewmodel.MainViewModel
 
 // Created the Scan screen - Mihai Panait (#991622264)
 // CameraX integration, API, ML Kit - Mihai Panait (#991622264)
+// Trying to incorporate Japanese as well as English to the text recognition - Mihai Panait (#991622264)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Scan(vm: MainViewModel) {
@@ -45,42 +47,88 @@ fun Scan(vm: MainViewModel) {
     LaunchedEffect(Unit) { cameraPermissionState.launchPermissionRequest() }
 
     var currentDetectedText by remember { mutableStateOf("") }
+    // I want to make a toggle for users that try to scan a Japanese Manga - Mihai Panait (#991622264)
+    // Default language is English - Mihai Panait (#991622264)
+    var selectedLanguage by remember { mutableStateOf("English") }
 
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Slate)) {
         if (cameraPermissionState.status.isGranted) {
+            // Selecting a language - Mihai Panait (#991622264)
+            /* Took this out, I thought it wasn't needed - Mihai Panait (#991622264)
+            Text(
+                "Recognize Language:",
+                color = Golden,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 2.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = { selectedLanguage = "English" },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selectedLanguage == "English") Golden else Lavender
+                    )
+                ) { Text("English", color = Slate, fontWeight = FontWeight.Bold) }
 
-            Box(modifier = Modifier.weight(1f)) {
-                CameraPreviewView { imageProxy ->
-                    processImageProxy(imageProxy) { text ->
+                Button(
+                    onClick = { selectedLanguage = "Japanese" },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selectedLanguage == "Japanese") Golden else Lavender
+                    )
+                ) { Text("Japanese", color = Slate, fontWeight = FontWeight.Bold) }
+            }
+
+            Text(
+                text = "Selected Manga Cover Language: $selectedLanguage",
+                color = Golden,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp)
+            ) {
+                CameraPreviewView(selectedLanguage) { imageProxy ->
+                    processImageProxy(imageProxy, selectedLanguage) { text ->
                         currentDetectedText = text
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = { vm.goToScanResult(currentDetectedText) },
+                onClick = {
+                    vm.scannedText = currentDetectedText
+                    vm.scannedLanguage = selectedLanguage
+                    vm.goToScanResult(currentDetectedText)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(bottom = 6.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Golden),
                 enabled = currentDetectedText.isNotBlank()
             ) {
                 Text("Capture", color = Slate, fontWeight = FontWeight.Bold)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Button(
                 onClick = { vm.goToHome() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Golden)
-            ) { Text("Back to Home", color = Slate, fontWeight = FontWeight.Bold) }
+            ) {
+                Text("Back to Home", color = Slate, fontWeight = FontWeight.Bold)
+            }
 
         } else {
             Column(
@@ -104,7 +152,10 @@ fun Scan(vm: MainViewModel) {
 
 // Function for the camera preview - Mihai Panait (#991622264)
 @Composable
-fun CameraPreviewView(onImageCaptured: (ImageProxy) -> Unit) {
+fun CameraPreviewView(
+    selectedLanguage: String,
+    onImageCaptured: (ImageProxy) -> Unit
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
@@ -150,18 +201,27 @@ fun CameraPreviewView(onImageCaptured: (ImageProxy) -> Unit) {
 // Function required for the text recognition - Mihai Panait (#991622264)
 @androidx.annotation.OptIn(ExperimentalGetImage::class)
 @OptIn(ExperimentalGetImage::class)
-fun processImageProxy(imageProxy: ImageProxy, onTextDetected: (String) -> Unit) {
+fun processImageProxy(
+    imageProxy: ImageProxy,
+    language: String,
+    onTextDetected: (String) -> Unit
+) {
     val mediaImage = imageProxy.image
     if (mediaImage != null) {
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+        val recognizer = if (language == "Japanese") {
+            TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
+        } else {
+            TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        }
 
         recognizer.process(image)
-            .addOnSuccessListener { visionText ->
-                onTextDetected(visionText.text)
+            .addOnSuccessListener { result ->
+                onTextDetected(result.text.trim())
             }
             .addOnFailureListener { e ->
-                Log.e("MLKit", "Text recognition failed", e)
+                Log.e("MLKit", "$language recognition failed", e)
             }
             .addOnCompleteListener {
                 imageProxy.close()

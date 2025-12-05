@@ -67,7 +67,7 @@ class MainViewModel : ViewModel() {
         _uiState.value = UiState.Scan
     }
 
-    // Going to scan screen
+    // Going to scan screen - Mihai Panait (991622264)
     var scannedText by mutableStateOf("")
 
     fun goToScanResult(text: String) {
@@ -81,11 +81,12 @@ class MainViewModel : ViewModel() {
 
     fun scanAgain() {
         scannedText = ""
+        // Updated this for the language - Mihai Panait (991622264)
+        // scannedLanguage = "English"
         _uiState.value = UiState.Scan
     }
 
     // I wanted to incorporate some loading indication - Mihai Panait (991622264)
-
     var isLoadingRecs by mutableStateOf(false)
     var recommendations by mutableStateOf(listOf<MangaInfo>())
 
@@ -112,7 +113,6 @@ class MainViewModel : ViewModel() {
     }
 
     // Adding comments - Mihai Panait (991622264)
-
     private val privateWishlistComments = mutableMapOf<String, String>()
 
     val publicWishlistComments = mutableStateMapOf<String, String>()  // key = manga.id
@@ -162,14 +162,30 @@ class MainViewModel : ViewModel() {
 
 
     fun updatePrivateMangaComment(manga: MangaInfo, comment: String) {
+        val uid = currentUser.value?.uid ?: return
+
         viewModelScope.launch {
+            try {
+                repo.updatePrivateMangaComment(uid, manga.id, comment) // call repo to save
+            } catch (e: Exception) {
+                Log.e("WISHLIST", "Failed to save private comment", e)
+            }
         }
+
         setLocalComment("Private Wishlist", manga, comment)
     }
 
     fun updatePublicMangaComment(wishlistName: String, manga: MangaInfo, comment: String) {
+        val uid = currentUser.value?.uid ?: return
+
         viewModelScope.launch {
+            try {
+                repo.updatePublicMangaComment(uid, wishlistName, manga.id, comment) // call repo to save
+            } catch (e: Exception) {
+                Log.e("WISHLIST", "Failed to save public comment", e)
+            }
         }
+
         setLocalComment(wishlistName, manga, comment)
     }
 
@@ -217,8 +233,12 @@ class MainViewModel : ViewModel() {
 //        }
 //    }
 
+    // Working with another language - Mihai Panait (991622264)
+    var scannedLanguage by mutableStateOf("English")
+
+
     // Working on the Private and Public wishlists - Mihai Panait (991622264)
-    // Tracks which manga are checked by the user
+    // Tracks which manga are checked by the user - Mihai Panait (991622264)
     var selectedManga = mutableStateListOf<WishlistMangaKey>()
         private set
 
@@ -340,7 +360,6 @@ class MainViewModel : ViewModel() {
                 showWishlistMessage("Failed to save to public list.")
                 Log.e("WISHLIST", "Error adding to public wishlist", e)
             } finally {
-                // Remove only selected keys from the current public wishlist
                 selectedManga.removeAll { it.wishlistName == currentWishlistName }
             }
         }
@@ -356,7 +375,7 @@ class MainViewModel : ViewModel() {
                 privateWishlist.clear()
                 privateWishlist.addAll(list)
 
-                // Populate comments
+                // Populate comments - Mihai Panait (991622264)
                 privateWishlistComments.clear()
                 list.forEach { manga ->
                     privateWishlistComments[manga.id] = manga.comment.orEmpty()
@@ -376,7 +395,7 @@ class MainViewModel : ViewModel() {
                 publicWishlist.clear()
                 publicWishlist.addAll(list)
 
-                // Populate comments
+                // Populate comments - Mihai Panait (991622264)
                 publicWishlistComments.clear()
                 list.forEach { manga ->
                     publicWishlistComments[manga.id] = manga.comment.orEmpty()

@@ -18,7 +18,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -40,6 +42,10 @@ import week11.st9464.finalproject.model.MangaInfo
 import week11.st9464.finalproject.model.PublicWishlistSummary
 import week11.st9464.finalproject.viewmodel.MainViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import week11.st9464.finalproject.ui.theme.BurntOrange
@@ -57,14 +63,32 @@ import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalWishBoardScreen(vm: MainViewModel) {
+    // Importing the sortMode - Mihai Panait (991622264)
+    var sortMode by remember { mutableStateOf(SortMode.None) }
+
     // Load summaries when screen is first displayed - Mihai Panait (991622264)
     LaunchedEffect(Unit) {
         vm.loadGlobalWishlistSummaries()
     }
 
+    val currentUserUid = vm.currentUser.collectAsState().value?.uid ?: ""
+
+    val sortedSummaries = remember(vm.globalWishlistSummaries, sortMode, currentUserUid) {
+        when(sortMode) {
+            SortMode.UsersSelfFirst -> vm.globalWishlistSummaries.sortedByDescending { it.uid == currentUserUid }
+            SortMode.MangaCountAsc -> vm.globalWishlistSummaries.sortedBy { it.mangaCount }
+            SortMode.MangaCountDesc -> vm.globalWishlistSummaries.sortedByDescending { it.mangaCount }
+            SortMode.WishlistNameAsc -> vm.globalWishlistSummaries.sortedBy { it.wishlistName.lowercase() }
+            SortMode.WishlistNameDesc -> vm.globalWishlistSummaries.sortedByDescending { it.wishlistName.lowercase() }
+            else -> vm.globalWishlistSummaries
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            // Added the verticalScroll so that the user can scroll on their phone - Mihai Panait (991622264)
+            .verticalScroll(rememberScrollState())
             .background(Lavender)
             .padding(16.dp)
     ) {
@@ -88,31 +112,62 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Header row
+        // Header row - Mihai Panait (991622264)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Making the Users clickable as a filter - Mihai Panait (991622264)
+            // Added an indicator - Mihai Panait (991622264)
+            val usersSortArrow = if (sortMode == SortMode.UsersSelfFirst) "▲" else ""
             Text(
-                "Users",
+                "Users $usersSortArrow",
                 color = EarthBrown,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(2f)
+                modifier = Modifier.weight(2f).clickable {
+                    sortMode = if (sortMode == SortMode.UsersSelfFirst) SortMode.None
+                    else SortMode.UsersSelfFirst
+                }
             )
+            // Making the Manga Amount clickable as a filter - Mihai Panait (991622264)
+            // Added indicators - Mihai Panait (991622264)
+            val countSortArrow = when(sortMode) {
+                SortMode.MangaCountAsc -> "▲"
+                SortMode.MangaCountDesc -> "▼"
+                else -> ""
+            }
             Text(
-                "Number of Manga",
+                "Manga Amount $countSortArrow",
                 color = EarthBrown,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).clickable {
+                    sortMode = when(sortMode) {
+                        SortMode.MangaCountAsc -> SortMode.MangaCountDesc
+                        else -> SortMode.MangaCountAsc
+                    }
+                }
             )
+            // Making the Wishlist Name clickable as a filter - Mihai Panait (991622264)
+            // Added indicators - Mihai Panait (991622264)
+            val nameSortArrow = when(sortMode) {
+                SortMode.WishlistNameAsc -> "▲"
+                SortMode.WishlistNameDesc -> "▼"
+                else -> ""
+            }
             Text(
-                "Wishlist Name",
+                "Wishlist Name $nameSortArrow",
                 color = EarthBrown,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(2f)
+                modifier = Modifier.weight(2f).clickable {
+                    sortMode = when(sortMode) {
+                        SortMode.WishlistNameAsc -> SortMode.WishlistNameDesc
+                        else -> SortMode.WishlistNameAsc
+                    }
+                }
             )
+            // The Select was left as non clickable - Mihai Panait (991622264)
             Text(
                 "Select",
                 color = EarthBrown,
@@ -121,7 +176,9 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
             )
         }
 
+
         Spacer(modifier = Modifier.height(8.dp))
+
 
         // Scrollable list of wishlist summaries - Mihai Panait (991622264)
         LazyColumn(
@@ -130,15 +187,13 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(vm.globalWishlistSummaries) { summary ->
+            items(sortedSummaries) { summary ->
                 WishlistSummaryRow(
                     summary = summary,
                     isSelected = vm.selectedGlobalWishlist?.first == summary.uid &&
                             vm.selectedGlobalWishlist?.second == summary.wishlistName,
-                    onSelect = {
-                        vm.selectGlobalWishlist(summary.uid, summary.wishlistName)
-                    },
-                    currentUserUid = vm.currentUser.collectAsState().value?.uid
+                    onSelect = { vm.selectGlobalWishlist(summary.uid, summary.wishlistName) },
+                    currentUserUid = currentUserUid
                 )
             }
         }
@@ -175,6 +230,16 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
     }
 }
 
+// I wanted to add more interactive options and filters for the user - Mihai Panait (991622264)
+enum class SortMode {
+    None,
+    UsersSelfFirst,         // Self-created public playlists first - Mihai Panait (991622264)
+    MangaCountAsc,          // Least -> Most - Mihai Panait (991622264)
+    MangaCountDesc,         // Most -> Least - Mihai Panait (991622264)
+    WishlistNameAsc,        // Alphabetical A->Z - Mihai Panait (991622264)
+    WishlistNameDesc        // Alphabetical Z->A - Mihai Panait (991622264)
+}
+
 @Composable
 fun WishlistSummaryRow(
     summary: PublicWishlistSummary,
@@ -190,7 +255,6 @@ fun WishlistSummaryRow(
                     Golden.copy(alpha = 0.3f)
                 else
                     Cream,
-
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(vertical = 8.dp, horizontal = 8.dp),
@@ -198,11 +262,7 @@ fun WishlistSummaryRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(summary.email, fontWeight = FontWeight.Bold, modifier = Modifier.weight(2f))
-        Text(
-            summary.mangaCount.toString(),
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
+        Text(summary.mangaCount.toString(), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
         Text(summary.wishlistName, fontWeight = FontWeight.Bold, modifier = Modifier.weight(2f))
         Checkbox(
             checked = isSelected,

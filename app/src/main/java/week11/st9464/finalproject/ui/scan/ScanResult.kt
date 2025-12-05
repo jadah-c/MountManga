@@ -44,6 +44,8 @@ import java.net.URL
 fun ScanResultScreen(vm: MainViewModel) {
     val scannedText = vm.scannedText
 
+    val language = vm.scannedLanguage
+
     var mangaTitle by remember { mutableStateOf("") }
     var author by remember { mutableStateOf("") }
     var imageUrl by remember { mutableStateOf<String?>(null) }
@@ -51,14 +53,15 @@ fun ScanResultScreen(vm: MainViewModel) {
     var fetchState by remember { mutableStateOf("Loading...") }
 
     LaunchedEffect(scannedText) {
-        val result = fetchMangaFromJikan(scannedText)
+        val result = fetchMangaFromJikan(scannedText, language)
         if (result == null) {
             fetchState = "Capture Failed"
         } else {
             mangaTitle = result.title
             author = result.author
             imageUrl = result.imageUrl
-            volume = result.volume
+            volume = if (result.volume.isNotBlank()) result.volume
+            else extractVolumeNumber(scannedText, language)
             fetchState = "Capture Success"
         }
     }
@@ -93,11 +96,9 @@ fun ScanResultScreen(vm: MainViewModel) {
         }
 
         Spacer(Modifier.height(12.dp))
-
         Text("Capture: $fetchState")
 
         Spacer(Modifier.height(20.dp))
-
         Button(
             onClick = { vm.goToMangaDetails() },
             modifier = Modifier.fillMaxWidth(),
@@ -106,29 +107,24 @@ fun ScanResultScreen(vm: MainViewModel) {
                 containerColor = EarthBrown,
                 contentColor = Golden
             )
-        ) {
-            Text("View Manga Details", fontWeight = FontWeight.Bold)
-        }
+        ) { Text("View Manga Details", fontWeight = FontWeight.Bold) }
 
         Spacer(Modifier.height(16.dp))
-
         if (fetchState == "Capture Success") {
             Text("Title: $mangaTitle")
             Text("Author: $author")
-            if (volume.isNotBlank()) Text("Volume: $volume")
+            if (volume.isNotBlank()) Text("Volume(s): $volume")
         }
 
         Spacer(Modifier.height(30.dp))
-
         Button(
             onClick = { vm.scanAgain() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Slate,
                 contentColor = Color.White
             )
-        ) {
-            Text("Scan Again", fontWeight = FontWeight.Bold)
-        }
+        ) { Text("Scan Again", fontWeight = FontWeight.Bold) }
+
         Spacer(Modifier.height(10.dp))
         Button(
             onClick = { vm.goToHome() },
@@ -136,23 +132,61 @@ fun ScanResultScreen(vm: MainViewModel) {
                 containerColor = Slate,
                 contentColor = Color.White
             )
-        ) {
-            Text("Home", fontWeight = FontWeight.Bold)
-        }
+        ) { Text("Home", fontWeight = FontWeight.Bold) }
     }
 }
 
-// Making sure the text recognition is cleared up - Mihai Panait (#991622264)
-fun cleanQuery(raw: String): String {
-    return raw.lowercase()
-        .replace("[^a-z0-9 ]".toRegex(), "")
-        .replace("manga", "")
-        .replace("issue", "")
-        .replace("volume", "")
-        .replace("""vol\.?\s*\d+""".toRegex(), "")
-        .replace("""\d+""".toRegex(), "")
-        .replace("\\s+".toRegex(), " ")
+// Trying to accuractely get the volume number - Mihai Panait (991622264)
+fun extractVolumeNumber(raw: String, language: String = "English"): String {
+    if (raw.isBlank()) return "Unknown"
+
+    val normalized = raw
+        .replace("\n", " ")
+        .replace("　", " ") // full-width space → normal
+        .replace("[０-９]".toRegex()) { (it.value[0] - '０').toString() }
         .trim()
+
+    if (normalized.isBlank()) return "Unknown"
+
+    // Japanese formats - Mihai Panait (991622264)
+    if (language == "Japanese") {
+        Regex("""第\s*(\d+)\s*[巻話]""").find(normalized)?.let { return it.groupValues[1] }
+        Regex("""(\d+)\s*[巻話]""").find(normalized)?.let { return it.groupValues[1] }
+    }
+
+    // English formats - Mihai Panait (991622264)
+    Regex("""(?i)(vol(?:ume)?\.?\s*|v\.?\s*)(\d+)""").find(normalized)?.let { return it.groupValues[2] }
+
+    Regex("""\b(\d+)\b""").find(normalized)?.let { return it.groupValues[1] }
+
+    return "Unknown"
+}
+
+// Making sure the text recognition is cleared up - Mihai Panait (#991622264)
+// Updated the function to check if language is English or Japanese - Mihai Panait (#991622264)
+// "[^a-z0-9 ]" would remove all Japanese characters, so this is necessary for acurracy - Mihai Panait (#991622264)
+fun cleanQuery(raw: String, language: String = "English"): String {
+    return if (language == "Japanese") {
+        raw.trim()
+            .replace("　", " ")
+            .replace("[０-９]".toRegex()) { (it.value[0] - '０').toString() }
+            .replace("第\\s*\\d+\\s*巻".toRegex(), "")
+            .replace("巻".toRegex(), "")
+            .replace("第".toRegex(), "")
+            .replace("[。、・「」『』]".toRegex(), "")
+            .replace("\\s+".toRegex(), " ")
+            .trim()
+    } else {
+        raw.lowercase()
+            .replace("[^a-z0-9 ]".toRegex(), "")
+            .replace("manga", "")
+            .replace("issue", "")
+            .replace("volume", "")
+            .replace("""vol\.?\s*\d+""".toRegex(), "")
+            .replace("""\d+""".toRegex(), "")
+            .replace("\\s+".toRegex(), " ")
+            .trim()
+    }
 }
 
 // Returns how many edits (insert, delete, substitute) are needed to turn string a into string b - Mihai Panait (#991622264)
@@ -172,20 +206,21 @@ fun levenshtein(a: String, b: String): Int {
     return dp[a.length][b.length]
 }
 
-fun isCloseMatch(a: String, b: String, thresholdPercent: Int = 40): Boolean {
+fun isCloseMatch(a: String, b: String, language: String = "English"): Boolean {
     val distance = levenshtein(a, b)
     val maxLen = maxOf(a.length, b.length)
-    return distance <= maxLen * thresholdPercent / 100
+    val threshold = if (language == "Japanese") maxOf(1, maxLen * 50 / 100) else maxLen * 40 / 100
+    return distance <= threshold
 }
 
 // Fetching the query from Jikan - Mihai Panait (#991622264)
-suspend fun fetchMangaFromJikan(query: String): MangaInfo? {
+suspend fun fetchMangaFromJikan(query: String, language: String = "English"): MangaInfo? {
     return withContext(Dispatchers.IO) {
         try {
-            val cleaned = cleanQuery(query)
-            if (cleaned.isBlank()) return@withContext null
+            val cleanedQuery = cleanQuery(query, language)
+            if (cleanedQuery.isBlank()) return@withContext null
 
-            val encoded = URLEncoder.encode(cleaned, "UTF-8")
+            val encoded = URLEncoder.encode(cleanedQuery, "UTF-8")
             val url = "https://api.jikan.moe/v4/manga?q=$encoded&limit=10"
             val json = URL(url).readText()
             val obj = JSONObject(json)
@@ -194,40 +229,37 @@ suspend fun fetchMangaFromJikan(query: String): MangaInfo? {
 
             val results = (0 until data.length()).map { data.getJSONObject(it) }
 
-            val best = results.firstOrNull { manga ->
-                val titles = listOf(
-                    manga.getString("title"),
-                    manga.optString("title_english", ""),
-                    manga.optString("title_japanese", "")
-                ).map { it.lowercase().trim() }
-                titles.any { it.contains(cleaned) || isCloseMatch(cleaned, it) }
-            } ?: results.first()
+            // Find best match based on cleaned titles - Mihai Panait (991622264)
+            val best = results.minByOrNull { manga ->
+                val titles = mutableListOf<String>().apply {
+                    add(manga.optString("title"))
+                    add(manga.optString("title_english"))
+                    add(manga.optString("title_japanese"))
+                    val synonyms = manga.optJSONArray("title_synonyms")
+                    if (synonyms != null) for (i in 0 until synonyms.length()) add(synonyms.getString(i))
+                }.map { cleanQuery(it, language) }
 
-            val title = best.getString("title")
+                titles.map { levenshtein(cleanedQuery, it) }.minOrNull() ?: Int.MAX_VALUE
+            } ?: return@withContext null
+
+            val resolvedTitle = best.optString("title_english").ifBlank { best.optString("title") }
             val authorsArr = best.optJSONArray("authors")
             val author = if (authorsArr != null && authorsArr.length() > 0)
-                authorsArr.getJSONObject(0).getString("name") else "Unknown"
+                authorsArr.getJSONObject(0).optString("name", "Unknown") else "Unknown"
             val volumes = if (!best.isNull("volumes")) best.getInt("volumes") else null
-            val image = best.getJSONObject("images").getJSONObject("jpg").getString("image_url")
-
-            // Extract genres - Mihai Panait (#991622264)
+            val image = best.getJSONObject("images").getJSONObject("jpg").optString("image_url", "")
             val genresArr = best.optJSONArray("genres")
             val genres = mutableListOf<String>()
-            if (genresArr != null) {
-                for (i in 0 until genresArr.length()) {
-                    genres.add(genresArr.getJSONObject(i).getString("name"))
-                }
-            }
+            if (genresArr != null) for (i in 0 until genresArr.length()) genres.add(genresArr.getJSONObject(i).optString("name"))
 
             MangaInfo(
                 id = best.getInt("mal_id").toString(),
-                title,
-                author,
-                image,
-                volumes?.toString() ?: "",
-                genres
+                title = resolvedTitle,
+                author = author,
+                imageUrl = image,
+                volume = volumes?.toString() ?: "",
+                genres = genres
             )
-
         } catch (e: Exception) {
             e.printStackTrace()
             null
