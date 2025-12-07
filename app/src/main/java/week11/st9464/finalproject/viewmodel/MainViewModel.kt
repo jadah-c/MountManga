@@ -617,6 +617,7 @@ class MainViewModel : ViewModel() {
     fun logout() {
         FirebaseAuth.getInstance().signOut()
         _currentUser.value = null
-        _uiState.value = UiState.Login
+        // Changed Logout navigation from Login Screen to Splash Screen - Jadah Charan (sID #991612594)
+        _uiState.value = UiState.Splash
     }
 }

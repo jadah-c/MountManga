@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -334,7 +335,11 @@ fun MangaInfoSection(manga: MangaInfo, vm: MainViewModel) {
     ) {
         Checkbox(
             checked = selected,
-            onCheckedChange = { vm.toggleMangaSelection(key) }
+            onCheckedChange = { vm.toggleMangaSelection(key) },
+            colors = CheckboxDefaults.colors(
+                checkedColor = Slate,
+                uncheckedColor = Slate
+            )
         )
 
         AsyncImage(
@@ -395,7 +400,11 @@ fun RecommendationCard(manga: MangaInfo, vm: MainViewModel) {
     ) {
         Checkbox(
             checked = selected,
-            onCheckedChange = { vm.toggleMangaSelection(key) }
+            onCheckedChange = { vm.toggleMangaSelection(key) },
+            colors = CheckboxDefaults.colors(
+                checkedColor = Slate,
+                uncheckedColor = Slate
+            )
         )
 
         Image(

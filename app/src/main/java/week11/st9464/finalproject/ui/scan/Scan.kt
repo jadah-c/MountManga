@@ -29,6 +29,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import week11.st9464.finalproject.ui.theme.EarthBrown
 import week11.st9464.finalproject.ui.theme.Golden
 import week11.st9464.finalproject.ui.theme.Lavender
 import week11.st9464.finalproject.ui.theme.Slate
@@ -51,9 +52,11 @@ fun Scan(vm: MainViewModel) {
     // Default language is English - Mihai Panait (#991622264)
     var selectedLanguage by remember { mutableStateOf("English") }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Slate)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Slate)
+    ) {
         if (cameraPermissionState.status.isGranted) {
             // Selecting a language - Mihai Panait (#991622264)
             /* Took this out, I thought it wasn't needed - Mihai Panait (#991622264)
@@ -64,6 +67,30 @@ fun Scan(vm: MainViewModel) {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             */
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp)
+            ) {
+                CameraPreviewView(selectedLanguage) { imageProxy ->
+                    processImageProxy(imageProxy, selectedLanguage) { text ->
+                        currentDetectedText = text
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            /* Moved the selected language result abd language buttons down for better visibility and easier selection
+            - Jadah Charan (sID #991612594)
+             */
+            Text(
+                text = "Selected Manga Cover Language: $selectedLanguage",
+                color = Golden,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -84,28 +111,6 @@ fun Scan(vm: MainViewModel) {
                     )
                 ) { Text("Japanese", color = Slate, fontWeight = FontWeight.Bold) }
             }
-
-            Text(
-                text = "Selected Manga Cover Language: $selectedLanguage",
-                color = Golden,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(bottom = 6.dp)
-            ) {
-                CameraPreviewView(selectedLanguage) { imageProxy ->
-                    processImageProxy(imageProxy, selectedLanguage) { text ->
-                        currentDetectedText = text
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 onClick = {
