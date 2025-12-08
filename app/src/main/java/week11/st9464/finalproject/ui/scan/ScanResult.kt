@@ -66,7 +66,7 @@ fun ScanResultScreen(vm: MainViewModel) {
         }
     }
 
-    Column(
+    Column( // Added stylized UI for the Scan Result screen - Jadah Charan (sID #991612594)
         Modifier
             .fillMaxSize()
             .background(Cream)

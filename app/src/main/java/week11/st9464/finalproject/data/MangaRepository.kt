@@ -90,6 +90,7 @@ class MangaRepository {
             .delete()
             .await()
     }
+
     // Fetching the wishlists to display them later - Mihai Panait (991622264)
     suspend fun getPrivateWishlist(uid: String): List<MangaInfo> {
         val snapshot = db.collection("users")
@@ -137,7 +138,6 @@ class MangaRepository {
             }
         }
     }
-
 
     // For all public wishlists - Mihai Panait (991622264)
     suspend fun getAllPublicWishlists(): List<Pair<MangaInfo, String>> {
@@ -238,12 +238,16 @@ class MangaRepository {
             .await()
     }
 
-    suspend fun updatePublicMangaComment(uid: String, wishlistName: String, mangaId: String, comment: String) {
+    suspend fun updatePublicMangaComment(
+        uid: String,
+        wishlistName: String,
+        mangaId: String,
+        comment: String
+    ) {
         db.collection("publicWishlist")
             .document("${uid}_${wishlistName}_$mangaId")
             .update("comment", comment)
             .await()
     }
-
 }
 

@@ -83,7 +83,7 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
         AlertDialog(
             onDismissRequest = { editingMangaKey = null },
             title = { Text("Edit Comment", color = Slate, fontWeight = FontWeight.Bold) },
-            text = {
+            text = { // Added Slate color to Comment text field - Jadah C (sID #991612594)
                 OutlinedTextField(
                     value = comment,
                     onValueChange = { comment = it },
@@ -106,7 +106,7 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
                             // Save locally - Mihai Panait (991622264)
                             vm.setLocalComment(wishlistName, key.manga, comment)
                             editingMangaKey = null
-                        },
+                        }, // Added Slate color to Save button - Jadah C (sID #991612594)
                         colors = ButtonDefaults.textButtonColors(contentColor = Slate)
                     )
                     {
@@ -120,7 +120,7 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
                             // Remove locally - Mihai Panait (991622264)
                             vm.removeLocalComment(wishlistName, key.manga)
                             editingMangaKey = null
-                        },
+                        }, // Added Lavender color to Clear button - Jadah C (sID #991612594)
                         colors = ButtonDefaults.textButtonColors(contentColor = Lavender)
                     )
                     {
@@ -131,6 +131,7 @@ fun PrivateWishlistScreen(vm: MainViewModel) {
             dismissButton = {
                 TextButton(
                     onClick = { editingMangaKey = null },
+                    // Added BurntOrange color to Cancel button - Jadah C (sID #991612594)
                     colors = ButtonDefaults.textButtonColors(contentColor = BurntOrange)
                 ) {
                     Text("Cancel", fontWeight = FontWeight.Bold)

@@ -101,6 +101,7 @@ fun MangaDetails(vm: MainViewModel) {
             .fillMaxSize()
             // Added the verticalScroll so that the user can scroll on their phone - Mihai Panait (991622264)
             .verticalScroll(rememberScrollState())
+            // Set background color to Cream for consistency with theme - Jadah C (sID #991612594)
             .background(Cream)
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -130,7 +131,7 @@ fun MangaDetails(vm: MainViewModel) {
                     }
                 )
                 vm.addSelectedToPrivate(allSelected)
-            },
+            }, // Added button colors for private wishlist - Jadah C (sID #991612594)
             colors = ButtonDefaults.buttonColors(
                 containerColor = EarthBrown,
                 contentColor = Golden
@@ -229,7 +230,7 @@ fun MangaDetails(vm: MainViewModel) {
                 } else {
                     vm.showWishlistMessage("Please select or enter a wishlist name.")
                 }
-            },
+            }, // Added button colors for public wishlist - Jadah C (sID #991612594)
             colors = ButtonDefaults.buttonColors(
                 containerColor = EarthBrown,
                 contentColor = Golden
@@ -243,6 +244,7 @@ fun MangaDetails(vm: MainViewModel) {
 
         Button(
             onClick = { vm.goToScan() },
+            // Added Slate color to button - Jadah C (sID #991612594)
             colors = ButtonDefaults.buttonColors(
                 containerColor = Slate,
                 contentColor = Color.White
@@ -336,7 +338,7 @@ fun MangaInfoSection(manga: MangaInfo, vm: MainViewModel) {
         Checkbox(
             checked = selected,
             onCheckedChange = { vm.toggleMangaSelection(key) },
-            colors = CheckboxDefaults.colors(
+            colors = CheckboxDefaults.colors( // Matching checkbox color with app's theme - Jadah C (sID #991612594)
                 checkedColor = Slate,
                 uncheckedColor = Slate
             )

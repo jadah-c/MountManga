@@ -47,24 +47,26 @@ fun WishlistCard(
     comment: String? = null,
     onCommentChange: ((String) -> Unit)? = null,
     isEditing: Boolean = false
-) {
+) { // Highlight border Slate when card is selected - Jadah Charan (sID #991612594)
     val borderColor = if (isSelected) Slate else Color.Transparent
 
     Column(
         modifier = Modifier
             .width(120.dp)
+            // Rounded card shape and Lavender background added - Jadah Charan (sID #991612594)
             .clip(RoundedCornerShape(12.dp))
             .background(Lavender)
+            // Border for selected state - Jadah Charan (sID #991612594)
             .border(
                 width = 2.dp,
                 color = borderColor,
                 shape = RoundedCornerShape(16.dp)
             )
+            // Tap anywhere on card to toggle Select checkbox - Jadah Charan (sID #991612594)
             .clickable { onSelect(!isSelected) }
-            //.background(MaterialTheme.colorScheme.surface)
             .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    ) { // Manga title styled with EarthBrown for readability on Lavender cards - Jadah Charan (sID #991612594)
         Text(
             manga.title,
             style = MaterialTheme.typography.bodyMedium.copy(
@@ -74,7 +76,7 @@ fun WishlistCard(
             maxLines = 2,
             textAlign = TextAlign.Center
         )
-
+        // Manga cover image with rounded corners and a subtle Slate color outline - Jadah Charan (sID #991612594)
         Image(
             painter = rememberAsyncImagePainter(manga.imageUrl),
             contentDescription = manga.title,
@@ -90,7 +92,7 @@ fun WishlistCard(
         )
 
         Spacer(modifier = Modifier.height(4.dp))
-
+        // Checkbox row for selecting a manga - Jadah Charan (sID #991612594)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
@@ -99,14 +101,14 @@ fun WishlistCard(
                 checked = isSelected,
                 onCheckedChange = { onSelect(it) },
                 colors = CheckboxDefaults.colors(
-                    checkedColor = Slate,
-                    uncheckedColor = EarthBrown,
-                    checkmarkColor = Cream
+                    checkedColor = Slate,  // Slate checkmark background - Jadah Charan (sID #991612594)
+                    uncheckedColor = EarthBrown, // EarthBrown border when unchecked - Jadah Charan (sID #991612594)
+                    checkmarkColor = Cream // Cream checkmark for contrast - Jadah Charan (sID #991612594)
                 )
             )
             Text("Select", color = EarthBrown, modifier = Modifier.padding(start = 4.dp))
         }
-
+        // Display existing comments in italic (read-only) - Jadah Charan (sID #991612594)
         if (comment != null && !isEditing) {
             Text(
                 comment,
@@ -117,7 +119,7 @@ fun WishlistCard(
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
-
+        // Show edit comment field only when editing and the item is selected - Jadah Charan (sID #991612594)
         onCommentChange?.let {
             if (isEditing && isSelected) {
                 var textState = remember { mutableStateOf(comment ?: "") }

@@ -81,8 +81,10 @@ fun Scan(vm: MainViewModel) {
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            /* Moved the selected language result abd language buttons down for better visibility and easier selection
-            - Jadah Charan (sID #991612594)
+            /*
+                Moved the selected language result and language buttons down for better visibility and easier selection
+                Added stylized UI design for the Scan screen buttons
+                - Jadah Charan (sID #991612594)
              */
             Text(
                 text = "Selected Manga Cover Language: $selectedLanguage",

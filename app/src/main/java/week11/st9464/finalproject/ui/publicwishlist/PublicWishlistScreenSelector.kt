@@ -54,6 +54,7 @@ fun PublicWishlistSelectorScreen(vm: MainViewModel) {
     ) {
         CenterAlignedTopAppBar(
             title = {
+                // Added custom UI design to Public Wishlists Screen Selector title text - Jadah C (sID #991612594)
                 Text(
                     "My Public Wishlists",
                     color = EarthBrown,
@@ -61,7 +62,7 @@ fun PublicWishlistSelectorScreen(vm: MainViewModel) {
                     fontWeight = FontWeight.Bold,
                     fontFamily = parisFontFamily
                 )
-            },
+            }, // Remove default pink top app bar color and apply Cream color - Jadah C (sID #991612594)
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = Color.Transparent,
                 scrolledContainerColor = Color.Transparent,
@@ -88,7 +89,7 @@ fun PublicWishlistSelectorScreen(vm: MainViewModel) {
                 )
             }
         }
-
+        // Added button color - Jadah C (sID #991612594)
         Button(
             onClick = { vm.goToHome() },
             colors = ButtonDefaults.buttonColors(
@@ -107,7 +108,7 @@ fun PublicWishlistRow(
     summary: PublicWishlistSummary,
     onClick: () -> Unit
 ) {
-    Row(
+    Row( // Stylized row for consistency - Jadah C (sID #991612594)
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
@@ -115,7 +116,7 @@ fun PublicWishlistRow(
             .clickable { onClick() }
             .padding(12.dp),
         horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    ) { // Added color and weight - Jadah C (sID #991612594)
         Column {
             Text(
                 summary.wishlistName,

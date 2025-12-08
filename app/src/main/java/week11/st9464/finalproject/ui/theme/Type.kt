@@ -35,7 +35,7 @@ val Typography = Typography(
     */
 )
 
-// Added new font family - Jadah Charan (#991612594)
+// Added new font family - Jadah C (sID #991612594)
 val parisFontFamily = FontFamily(
     Font(R.font.parisienne_regular, FontWeight.Black)
 )

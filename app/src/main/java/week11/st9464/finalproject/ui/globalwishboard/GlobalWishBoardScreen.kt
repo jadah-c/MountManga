@@ -57,7 +57,6 @@ import week11.st9464.finalproject.ui.theme.Slate
 import week11.st9464.finalproject.ui.theme.parisFontFamily
 import week11.st9464.finalproject.ui.wishlistui.WishlistScreen
 
-
 // Created GlobalWishBoard Screen - Jadah C (sID #991612594)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,7 +73,7 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
     val currentUserUid = vm.currentUser.collectAsState().value?.uid ?: ""
 
     val sortedSummaries = remember(vm.globalWishlistSummaries, sortMode, currentUserUid) {
-        when(sortMode) {
+        when (sortMode) {
             SortMode.UsersSelfFirst -> vm.globalWishlistSummaries.sortedByDescending { it.uid == currentUserUid }
             SortMode.MangaCountAsc -> vm.globalWishlistSummaries.sortedBy { it.mangaCount }
             SortMode.MangaCountDesc -> vm.globalWishlistSummaries.sortedByDescending { it.mangaCount }
@@ -89,19 +88,20 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
             .fillMaxSize()
             // Added the verticalScroll so that the user can scroll on their phone - Mihai Panait (991622264)
             .verticalScroll(rememberScrollState())
-            .background(Lavender)
+            .background(Lavender) // Added custom Lavender color - Jadah C (sID #991612594)
             .padding(16.dp)
     ) {
         CenterAlignedTopAppBar(
             title = {
+                // Added custom UI design to Global Wishlist Screen title text - Jadah C (sID #991612594)
                 Text(
                     "Global Wishlist Board",
                     style = MaterialTheme.typography.headlineMedium,
                     color = EarthBrown,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = parisFontFamily
+                    fontFamily = parisFontFamily // Added custom family font - Jadah C (sID #991612594)
                 )
-            },
+            }, // Remove default pink top app bar color and apply Lavender color - Jadah C (sID #991612594)
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = Color.Transparent,
                 scrolledContainerColor = Color.Transparent,
@@ -126,14 +126,16 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                 "Users $usersSortArrow",
                 color = EarthBrown,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(2f).clickable {
-                    sortMode = if (sortMode == SortMode.UsersSelfFirst) SortMode.None
-                    else SortMode.UsersSelfFirst
-                }
+                modifier = Modifier
+                    .weight(2f)
+                    .clickable {
+                        sortMode = if (sortMode == SortMode.UsersSelfFirst) SortMode.None
+                        else SortMode.UsersSelfFirst
+                    }
             )
             // Making the Manga Amount clickable as a filter - Mihai Panait (991622264)
             // Added indicators - Mihai Panait (991622264)
-            val countSortArrow = when(sortMode) {
+            val countSortArrow = when (sortMode) {
                 SortMode.MangaCountAsc -> "▲"
                 SortMode.MangaCountDesc -> "▼"
                 else -> ""
@@ -142,16 +144,18 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                 "Manga Amount $countSortArrow",
                 color = EarthBrown,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f).clickable {
-                    sortMode = when(sortMode) {
-                        SortMode.MangaCountAsc -> SortMode.MangaCountDesc
-                        else -> SortMode.MangaCountAsc
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        sortMode = when (sortMode) {
+                            SortMode.MangaCountAsc -> SortMode.MangaCountDesc
+                            else -> SortMode.MangaCountAsc
+                        }
                     }
-                }
             )
             // Making the Wishlist Name clickable as a filter - Mihai Panait (991622264)
             // Added indicators - Mihai Panait (991622264)
-            val nameSortArrow = when(sortMode) {
+            val nameSortArrow = when (sortMode) {
                 SortMode.WishlistNameAsc -> "▲"
                 SortMode.WishlistNameDesc -> "▼"
                 else -> ""
@@ -160,12 +164,14 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
                 "Wishlist Name $nameSortArrow",
                 color = EarthBrown,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(2f).clickable {
-                    sortMode = when(sortMode) {
-                        SortMode.WishlistNameAsc -> SortMode.WishlistNameDesc
-                        else -> SortMode.WishlistNameAsc
+                modifier = Modifier
+                    .weight(2f)
+                    .clickable {
+                        sortMode = when (sortMode) {
+                            SortMode.WishlistNameAsc -> SortMode.WishlistNameDesc
+                            else -> SortMode.WishlistNameAsc
+                        }
                     }
-                }
             )
             // The Select was left as non clickable - Mihai Panait (991622264)
             Text(
@@ -176,9 +182,7 @@ fun GlobalWishBoardScreen(vm: MainViewModel) {
             )
         }
 
-
         Spacer(modifier = Modifier.height(8.dp))
-
 
         // Scrollable list of wishlist summaries - Mihai Panait (991622264)
         LazyColumn(
@@ -247,23 +251,38 @@ fun WishlistSummaryRow(
     onSelect: () -> Unit,
     currentUserUid: String?
 ) {
+    // Apply a background highlight if the item belongs to the current user - Jadah C (sID #991612594)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 if (summary.uid == currentUserUid)
-                    Golden.copy(alpha = 0.3f)
+                    Golden.copy(alpha = 0.3f) // Highlight current user’s row with a soft golden color - Jadah C (sID #991612594)
                 else
-                    Cream,
-                shape = RoundedCornerShape(8.dp)
+                    Cream, // Standard background for other users with Cream color - Jadah C (sID #991612594)
+                shape = RoundedCornerShape(8.dp) // Rounded corners and consistent padding for better UI spacing - Jadah C (sID #991612594)
             )
             .padding(vertical = 8.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Display user email with emphasis, weight ensures balanced spacing across the row - Jadah C (sID #991612594)
         Text(summary.email, fontWeight = FontWeight.Bold, modifier = Modifier.weight(2f))
-        Text(summary.mangaCount.toString(), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+
+        // Display manga count and bold styling for readability in table like layout - Jadah C (sID #991612594)
+        Text(
+            summary.mangaCount.toString(),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
+
+        // Display wishlist name, weight to align properly with other columns - Jadah C (sID #991612594)
         Text(summary.wishlistName, fontWeight = FontWeight.Bold, modifier = Modifier.weight(2f))
+        /*
+            Checkbox for selecting the row
+            Color added to match the application's Slate and Cream theme
+            Weight keeps alignment consistent with other columns - Jadah C (sID #991612594)
+         */
         Checkbox(
             checked = isSelected,
             onCheckedChange = { onSelect() },
@@ -290,6 +309,7 @@ fun GlobalWishlistContentScreen(vm: MainViewModel) {
             .padding(16.dp)
     ) {
         CenterAlignedTopAppBar(
+            // Applied the same method as above to the title - Jadah C (sID #991612594)
             title = {
                 Text(
                     wishlistName.ifEmpty { "Wishlist" },
@@ -349,7 +369,7 @@ fun GlobalWishlistContentScreen(vm: MainViewModel) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
+        // Applied UI design to back button - Jadah C (sID #991612594)
         Button(
             onClick = { vm.goToGlobalWishBoard() },
             modifier = Modifier.align(Alignment.CenterHorizontally),

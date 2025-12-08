@@ -58,6 +58,12 @@ fun LoginScreen(vm: MainViewModel) {
 
     Log.d("mylog", "Current signed in user: ${auth.currentUser?.email}")
 
+    /*
+        The main layout for the Login screen
+        Fills available space
+        Uses Cream color as the background for a neutral login
+        Centers all content both vertically and horizontally - Jadah C (sID #991612594)
+    */
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -67,7 +73,7 @@ fun LoginScreen(vm: MainViewModel) {
         verticalArrangement = Arrangement.Center
     )
     {
-        // Created a Top Bar with title - Jadah C (#991612594)
+        // Improved UI design to Welcome title text with Slate color and custom font - Jadah C (sID #991612594)
         CenterAlignedTopAppBar(
             title = {
                 Text(
@@ -91,6 +97,7 @@ fun LoginScreen(vm: MainViewModel) {
 
         Spacer(Modifier.height(24.dp))
 
+        // Title for Login text is underlined and styled - Jadah C (sID #991612594)
         Text(
             text = "Login",
             style = MaterialTheme.typography.headlineMedium.copy(fontSize = 26.sp),
@@ -103,7 +110,7 @@ fun LoginScreen(vm: MainViewModel) {
 
         Spacer(Modifier.height(24.dp))
 
-        // Created email field - Jadah C (sID #991612594)
+        // Created Email input field with Slate color and bold label to match app’s color theme - Jadah C (sID #991612594)
         OutlinedTextField(
             value = emailState.value,
             onValueChange = { emailState.value = it },
@@ -120,7 +127,7 @@ fun LoginScreen(vm: MainViewModel) {
 
         Spacer(Modifier.height(12.dp))
 
-        // Created password field - Jadah C (sID #991612594)
+        // Created Password input field that matches styling of the email field for UI consistency - Jadah C (sID #991612594)
         OutlinedTextField(
             value = passwordState.value,
             onValueChange = { passwordState.value = it },
@@ -138,7 +145,10 @@ fun LoginScreen(vm: MainViewModel) {
 
         Spacer(Modifier.height(20.dp))
 
-        // Created Login and Sign Up buttons - Jadah C (sID #991612594)
+        /*
+            Created Row containing Login and Sign Up buttons
+            Lavender background for contrast against Cream color - Jadah C (sID #991612594)
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly

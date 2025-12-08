@@ -31,7 +31,11 @@ import week11.st9464.finalproject.viewmodel.MainViewModel
 @Composable
 fun HomeScreen(vm: MainViewModel) {
     val currentUser by vm.currentUser.collectAsState()
-
+    /*
+        The main vertical layout for the Home screen
+        Fills the screen and uses Slate color as the background to match the app's theme
+        Applies padding for a centered and organized layout - Jadah C (sID #991612594)
+    */
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,6 +44,7 @@ fun HomeScreen(vm: MainViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Home screen title styled with Golden color and custom font - Jadah C (sID #991612594)
         Text(
             text = "Home",
             style = MaterialTheme.typography.headlineMedium,
@@ -51,14 +56,27 @@ fun HomeScreen(vm: MainViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
 
         currentUser?.let { user ->
-            Text("Logged in as: ${user.email}", fontWeight = FontWeight.Bold, color = Golden)
+            // Display logged in user's email with Golden color - Jadah C (sID #991612594)
+            Text(
+                "Logged in as: ${user.email}",
+                fontWeight = FontWeight.Bold,
+                color = Golden
+            )
             Spacer(modifier = Modifier.height(24.dp))
 
+            /*
+                Shared button style for consistent layout
+                Width set to 70% of the screen for balanced visual weight
+                Vertical padding for proper spacing between buttons - Jadah C (sID #991612594)
+             */
             val buttonModifier = Modifier
                 .fillMaxWidth(0.7f)
                 .padding(vertical = 6.dp)
 
-            // List of buttons with label and action - Jadah C (sID #991612594)
+            /*
+                List of navigation buttons in a vertical column
+                Each button uses a Cream color background with Slate color text - Jadah C (sID #991612594)
+             */
             val buttons = listOf(
                 "Scan" to { vm.goToScan() },
                 "My Private Wishlist" to { vm.goToPrivateWishlist() },
@@ -73,10 +91,12 @@ fun HomeScreen(vm: MainViewModel) {
                     modifier = buttonModifier,
                     colors = ButtonDefaults.buttonColors(containerColor = Cream)
                 ) {
+                    // Button label styled bold to match theme and improve readability - Jadah C (sID #991612594)
                     Text(label, color = Slate, fontWeight = FontWeight.Bold)
                 }
             }
         } ?: run {
+            // Fallback UI if user data is unavailable - Jadah C (sID #991612594)
             Text("User not available", color = Color.Red, fontWeight = FontWeight.Bold)
         }
     }

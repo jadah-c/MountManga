@@ -103,6 +103,11 @@ fun PublicWishlistScreen(vm: MainViewModel) {
                     onValueChange = { comment = it },
                     label = { Text("Comment") },
                     singleLine = false,
+                    /*
+                        Customize the text field styling to match the app's theme
+                        Slate border when focused, lighter Slate when unfocused,
+                        and Slate cursor for consistency - Jadah C (sID #991612594)
+                     */
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Slate,
                         unfocusedBorderColor = Slate.copy(alpha = 0.4f),

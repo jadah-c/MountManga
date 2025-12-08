@@ -56,24 +56,25 @@ fun WishlistScreen(
     showEditDelete: Boolean = true,
     homeButtonText: String = "Home",
     commentMap: MutableMap<WishlistMangaKey, String>
-) {
+) { // Main screen layout with Lavender background for app theme - Jadah Charan (sID #991612594)
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Lavender)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    ) { // Centered title bar with custom font and EarthBrown styling - Jadah Charan (sID #991612594)
         CenterAlignedTopAppBar(
             title = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Wishlist page title with UI design - Jadah Charan (sID #991612594)
                     Text(
                         title,
                         style = MaterialTheme.typography.headlineLarge,
                         color = EarthBrown,
                         fontFamily = parisFontFamily
                     )
-                    subtitle?.let {
+                    subtitle?.let { // Optional subtitle under the main title - Jadah Charan (sID #991612594)
                         Text(
                             it,
                             style = MaterialTheme.typography.bodyLarge,
@@ -83,7 +84,7 @@ fun WishlistScreen(
                         )
                     }
                 }
-            },
+            }, // Remove default pink top app bar color and apply Lavender color - Jadah Charan (sID #991612594)
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = Color.Transparent,
                 scrolledContainerColor = Color.Transparent,
@@ -94,14 +95,14 @@ fun WishlistScreen(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
+        // Message displayed when wishlist has no manga - Jadah Charan (sID #991612594)
         if (mangaList.isEmpty()) {
             Text(
                 "No manga in this wishlist.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = EarthBrown
             )
-        } else {
+        } else { // Grid layout of manga cards with proper spacing - Jadah Charan (sID #991612594)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -129,7 +130,7 @@ fun WishlistScreen(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             if (showEditDelete) {
-                Button(
+                Button( // Edit button styled with Slate and Cream colors - Jadah Charan (sID #991612594)
                     onClick = { onEditSelected(commentMap) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Slate,
@@ -139,7 +140,7 @@ fun WishlistScreen(
                     Text("Edit Selected")
                 }
 
-                Button(
+                Button( // Delete button with BurntOrange color - Jadah Charan (sID #991612594)
                     onClick = onDeleteSelected,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = BurntOrange,
@@ -149,7 +150,7 @@ fun WishlistScreen(
                     Text("Delete Selected")
                 }
 
-                Button(
+                Button( // Home button styled with EarthBrown color - Jadah Charan (sID #991612594)
                     onClick = onHome,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = EarthBrown,
